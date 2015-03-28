@@ -1,0 +1,3 @@
+paramiko==1.15.2
+scp==0.9.0
+pyyaml==3.11
