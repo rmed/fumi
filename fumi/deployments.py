@@ -148,5 +148,95 @@ def deploy_local(deployment):
                 rm_old = "rm -rf %s" % os.path.join(rev_path, r.strip())
                 stdin, stdout, stderr = ssh.exec_command(rm_old)
 
+    print("Deployment complete!")
+
 def deploy_git(deployment):
     """ Git based deployment. """
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    try:
+        ssh.connect(deployment.host, username=deployment.user)
+    except e:
+        sys.exit("Error establishing SSH connection", e)
+
+    # Run pre-deployment commands
+    if deployment.pre_local:
+        for cmd in deployment.pre_local:
+            print("Running local command:", cmd)
+            subprocess.Popen(cmd, shell=True).wait()
+
+    # Usually executed relative to user directory (~/)
+    if deployment.pre_remote:
+        for cmd in deployment.pre_local:
+            print("Running remote command:", cmd)
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+            # TODO: better handling for SSH return codes?
+            # print(stdout.channel.recv_exit_status())
+            print(*stdout.readlines())
+
+    # Checkout source
+    print("Cloning repository...")
+
+    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    rev_path = os.path.join(deployment.d_path, "rev")
+    current_rev = os.path.join(deployment.d_path, "rev", timestamp)
+    clone = "git clone %s %s" % (deployment.s_path, current_rev)
+
+    stdin, stdout, stderr = ssh.exec_command(clone)
+    status = stdout.channel.recv_exit_status()
+
+    if status == 147:
+        sys.exit("git command not found in remote server")
+    # TODO: check git exit codes
+
+    # Link directory
+    print("Linking directory")
+
+    link_path = os.path.join(deployment.d_path, "current")
+    ln = "ln -sfn %s %s" % (current_rev, link_path)
+
+    stdin, stdout, stderr = ssh.exec_command(ln)
+    # status = stdout.channel.recv_exit_status()
+
+    # Run post-deployment commands
+    if deployment.post_local:
+        for cmd in deployment.pre_local:
+            print("Running local command:", cmd)
+            subprocess.Popen(cmd, shell=True).wait()
+
+    # Executed relative to deploy_path/current
+    if deployment.post_remote:
+        for cmd in deployment.pre_local:
+            print("Running remote command:", cmd)
+            cd_command = "cd %s; %s" % (link_path, cmd)
+            stdin, stdout, stderr = ssh.exec_command(cd_command)
+            # TODO: better handling for SSH return codes?
+            # print(stdout.channel.recv_exit_status())
+            print(*stdout.readlines())
+
+    # Clean revisions
+    if deployment.keep:
+        print("Checking for old revisions...")
+
+        stdin, stdout, stderr = ssh.exec_command("ls %s" % rev_path)
+        status = stdout.channel.recv_exit_status()
+
+        if status == 1 or status == 2:
+            print(*stderr.readlines())
+            sys.exit("Error obtaining list of revisions")
+
+        revisions = stdout.readlines()
+
+        if len(revisions) > deployment.keep:
+            old_revisions = []
+
+            while len(revisions) > deployment.keep:
+                old_revisions.append(revisions.pop(0))
+
+            for r in old_revisions:
+                print("Removing revision", r.strip())
+                rm_old = "rm -rf %s" % os.path.join(rev_path, r.strip())
+                stdin, stdout, stderr = ssh.exec_command(rm_old)
+
+    print("Deployment complete!")
