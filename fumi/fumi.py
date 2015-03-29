@@ -26,6 +26,7 @@
 # SOFTWARE.
 
 from __future__ import print_function
+from deployments import *
 import argparse
 import os
 import sys
@@ -114,6 +115,13 @@ def deploy(configuration):
 
     # Build deployment object
     dep = Deployment(**content[configuration])
+
+    # Local copy deployment
+    if dep.s_type == "local":
+        deploy_local(dep)
+
+    elif dep.s_type == "git":
+        deploy_git(dep)
 
     # print(dep.s_type)
     # print(dep.s_path)
