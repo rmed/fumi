@@ -1,0 +1,5 @@
+site_name: fumi documentation
+pages:
+- [index.md, Overview]
+- [quickstart.md, Quickstart]
+- [deployment_file.md, Deployment file]
