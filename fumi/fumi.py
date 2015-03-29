@@ -123,23 +123,6 @@ def deploy(configuration):
     elif dep.s_type == "git":
         deploy_git(dep)
 
-    # print(dep.s_type)
-    # print(dep.s_path)
-
-    # print(dep.pre_local)
-    # print(dep.pre_remote)
-
-    # print(dep.post_local)
-    # print(dep.post_remote)
-
-    # print(dep.host)
-    # print(dep.user)
-    # print(dep.d_path)
-    # print(dep.h_tmp)
-
-    # print(dep.keep)
-    # print(dep.default)
-
 
 def list_configs():
     """ List the configurations present in the fumi.yml file. """
