@@ -39,10 +39,7 @@ def deploy_local(deployment):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    try:
-        ssh.connect(deployment.host, username=deployment.user)
-    except e:
-        sys.exit("Error establishing SSH connection", e)
+    ssh.connect(deployment.host, username=deployment.user)
 
     # Run pre-deployment commands
     if deployment.pre_local:
@@ -61,21 +58,22 @@ def deploy_local(deployment):
 
     # Compress source to temporary directory
     timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    rev = timestamp + ".tar.gz"
-    print("Compressing source to /tmp/%s" % rev)
+    comp_file = timestamp + ".tar.gz"
+    tmp_local = os.path.join("/tmp", comp_file)
+    print("Compressing source to /tmp/%s" % comp_file)
 
-    with tarfile.open(os.path.join("/tmp", rev), "w:gz") as tar:
+    with tarfile.open(tmp_local, "w:gz") as tar:
         tar.add(deployment.s_path, arcname=timestamp)
 
     # Upload compressed source
-    print("Uploading...", rev)
+    print("Uploading %s..." % comp_file)
 
     uload = scp.SCPClient(ssh.get_transport())
     uload_tmp = deployment.h_tmp or "/tmp"
-    uload_path = os.path.join(uload_tmp, rev)
+    uload_path = os.path.join(uload_tmp, comp_file)
 
     try:
-        uload.put(os.path.join("/tmp", rev), uload_path)
+        uload.put(tmp_local, uload_path)
 
     except scp.SCPException as e:
         sys.exit("Error uploading to server", e)
@@ -148,6 +146,12 @@ def deploy_local(deployment):
                 rm_old = "rm -rf %s" % os.path.join(rev_path, r.strip())
                 stdin, stdout, stderr = ssh.exec_command(rm_old)
 
+    # Cleanup temporary files
+    print("Cleaning temporary files...")
+
+    subprocess.call(["rm", tmp_local])
+    stdin, stdout, stderr = ssh.exec_command("rm %s" % uload_path)
+
     print("Deployment complete!")
 
 def deploy_git(deployment):
@@ -155,10 +159,7 @@ def deploy_git(deployment):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    try:
-        ssh.connect(deployment.host, username=deployment.user)
-    except e:
-        sys.exit("Error establishing SSH connection", e)
+    ssh.connect(deployment.host, username=deployment.user)
 
     # Run pre-deployment commands
     if deployment.pre_local:
