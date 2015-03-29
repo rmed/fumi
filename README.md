@@ -8,7 +8,14 @@ fumi fetches deployment configurations from a `fumi.yml` file. To start using fu
 Installation
 ------------
 
-Soon
+```
+$ pip install fumi
+```
+
+Documentation
+-------------
+
+Documentation is available online at [http://fumi.readthedocs.org](http://fumi.readthedocs.org)
 
 Usage
 -----
@@ -29,34 +36,3 @@ commands:
     new                 create new deployment configuration
     remove              remove a configuration from the deployment file
 ```
-
-Creating a new deployment configuration
----------------------------------------
-
-You can let fumi create a blank configuration for you with all the mandatory fields by running:
-
-```shell
-fumi new CONF_NAME
-```
-
-Or you could just write it from scratch. It's a very simply yaml file, promise ;)
-
-Deploying with a given configuration
-------------------------------------
-
-Once you have at least one configuration, you can deploy by running:
-
-```shell
-fumi deploy CONF_NAME
-```
-
-Or, if you have a default configuration set:
-
-```shell
-fumi deploy
-```
-
-Documentation
--------------
-
-Soon

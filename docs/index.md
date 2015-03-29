@@ -2,6 +2,8 @@
 
 A small and (hopefully) simple deploying tool.
 
+Source code available at [https://github.com/rmed/fumi](https://github.com/rmed/fumi)
+
 ---
 
 ## Installation
