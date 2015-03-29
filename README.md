@@ -1,5 +1,5 @@
-fumi
-====
+fumi ![PyPI version](https://img.shields.io/pypi/v/fumi.svg)
+============================================================
 
 A small and (hopefully) simple deployment tool.
 
