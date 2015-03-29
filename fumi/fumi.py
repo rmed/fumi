@@ -266,6 +266,3 @@ def main():
         return
 
     parse_action(sys.argv[1], args)
-
-if __name__ == "__main__":
-    main()
