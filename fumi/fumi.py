@@ -26,14 +26,14 @@
 # SOFTWARE.
 
 from __future__ import print_function
-from deployments import *
+from fumi.deployments import *
 import argparse
 import os
 import sys
 import yaml
 if sys.version[0] == "3": raw_input=input
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 CWD = os.getcwd()
 DEP_CONF = os.path.join(CWD, 'fumi.yml')
