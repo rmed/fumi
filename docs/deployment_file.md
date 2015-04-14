@@ -145,4 +145,4 @@ local-ignore:
     - fumi.yml
 ```
 
-This way, directories `.git`, `docs`, `build`, `dist` and  files `.gitignore`, `fumi` will not be added to the compressed file.
+This way, directories `.git`, `docs`, `build`, `dist` and  files `.gitignore`, `fumi.yml` will not be added to the compressed file.
