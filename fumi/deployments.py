@@ -53,10 +53,17 @@ def deploy_local(deployment):
     comp_file = timestamp + ".tar.gz"
     tmp_local = os.path.join("/tmp", comp_file)
 
+    if deployment.local_ign:
+        cnt_list = list(
+            set(os.listdir(deployment.s_path))^set(deployment.local_ign))
+    else:
+        cnt_list = os.listdir(deployment.s_path)
+
     print(term.bold_cyan("\n# Compressing source to /tmp/%s\n" % comp_file))
 
     with tarfile.open(tmp_local, "w:gz") as tar:
-        tar.add(deployment.s_path, arcname=timestamp)
+        for item in cnt_list:
+            tar.add(item, arcname=timestamp + "/" + item)
 
     print(term.bold_green("Done!"))
 

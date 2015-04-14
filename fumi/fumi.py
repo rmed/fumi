@@ -72,6 +72,7 @@ class Deployment(object):
         # Optional information
         self.keep = kwargs.get('keep-max')
         self.default = kwargs.get('default')
+        self.local_ign = kwargs.get('local-ignore')
 
 
 def deploy(configuration):
@@ -266,3 +267,7 @@ def main():
         return
 
     parse_action(sys.argv[1], args)
+
+# Only for development
+# if __name__ == "__main__":
+#     main()
