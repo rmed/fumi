@@ -34,7 +34,7 @@ import sys
 import yaml
 if sys.version[0] == "3": raw_input=input
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 CWD = os.getcwd()
 DEP_CONF = os.path.join(CWD, 'fumi.yml')
