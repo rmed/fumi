@@ -51,9 +51,11 @@ def deploy_local(deployment):
     print(term.bold_green("Connected!\n"))
     print(term.bold_magenta("##########\n"))
 
+
     _predep(deployment.pre_local, deployment.pre_remote)
 
     print(term.bold_cyan("Checking remote directory structures...\n"))
+
 
     _check_dirs(deployment)
 
@@ -93,6 +95,7 @@ def deploy_local(deployment):
         uload.put(tmp_local, uload_path)
 
     except scp.SCPException as e:
+        _rollback(deployment, timestamp, 3)
         sys.exit(term.bold_red("Error uploading to server: %s" % e))
 
     print(term.bold_green("Done!\n"))
@@ -109,12 +112,15 @@ def deploy_local(deployment):
     status = stdout.channel.recv_exit_status()
 
     if status == 127:
+        _rollback(deployment, timestamp, 1)
         sys.exit(term.bold_red("Error: tar command not found in remote host"))
     elif status == 1:
         print(*stderr.readlines())
+        _rollback(deployment, timestamp, 2)
         sys.exit(term.bold_red("Error: some files differ"))
     elif status == 2:
         print(*stderr.readlines())
+        _rollback(deployment, timestamp, 2)
         sys.exit(term.bold_red("Fatal error when extracting remote file"))
 
     print(term.bold_green("Done!\n"))
@@ -157,10 +163,11 @@ def deploy_git(deployment):
     print(term.bold_green("Connected!\n"))
     print(term.bold_magenta("##########\n"))
 
-    # Run pre-deployment commands
+
     _predep(deployment.pre_local, deployment.pre_remote)
 
     print(term.bold_cyan("Checking remote directory structures...\n"))
+
 
     _check_dirs(deployment)
 
@@ -323,6 +330,87 @@ def _predep(local, remote):
             # print(stdout.channel.recv_exit_status())
             print(*stdout.readlines())
         print(term.bold_magenta("\n##########\n"))
+
+def _rollback(dep, timestamp, level):
+    """ Perform a rollback based on current deployment.
+
+        Rollbacks have several levels:
+
+        1 -> remove locally generated files (compressed source)
+        2 -> remove uploaded compressed source (if any)
+        3 -> remove remote revision
+        4 -> link previous revision
+
+        All the levels lower to the one provided are executed as well.
+    """
+    print(term.bold_red("Beginning rollback...\n"))
+
+    comp_file = timestamp + ".tar.gz"
+    rev_path = os.path.join(dep.d_path, "rev")
+
+    if level >= 1:
+        local_file = os.path.join("/tmp", comp_file)
+
+        if os.path.isfile(local_file):
+            print(term.bold_magenta("Removing %s..." % local_file))
+            os.remove(local_file)
+
+    if level >= 2:
+        uload_tmp = dep.h_tmp or "/tmp"
+        remote_file = os.path.join(uload_tmp, comp_file)
+
+        stdin, stdout, stderr = ssh.exec_command(
+            "[ -f %s ] && echo OK" % remote_file)
+
+        result = stdout.read()
+
+        if result:
+            print(term.bold_magenta("Removing remote file %s..." %
+                remote_file))
+            stdin, stdout, stderr = ssh.exec_command(
+                "rm %s" % remote_file)
+
+            status = stdout.channel.recv_exit_status()
+
+            if status < 0:
+                print(term.bold_red("Remote error"))
+                sys.exit(*stderr.readlines())
+
+    if level >= 3:
+        stdin, stdout, stderr = ssh.exec_command(
+            "[ -d %s ] && echo OK" % rev_path)
+
+        result = stdout.read()
+
+        if result:
+            print(term.bold_magenta("Removing remote revision %s...") %
+                timestamp)
+            stdin, stdout, stderr = ssh.exec_command(
+                "rm -rf %s" % os.path.join(rev_path, timestamp))
+
+            status = stdout.channel.recv_exit_status()
+
+            if status < 0:
+                print(term.bold_red("Remote error"))
+                sys.exit(*stderr.readlines())
+
+    if level >= 4:
+        stdin, stdout, stderr = ssh.exec_command("ls %s" % rev_path)
+        status = stdout.channel.recv_exit_status()
+
+        revs = [r.rstrip() for r in stdout.readlines()]
+
+        if timestamp in revs:
+            revs.remove(timestamp)
+
+        print(term.bold_magenta("Linking previous revision %s..." %
+            revs[-1]))
+
+        link_path = os.path.join(dep.d_path, "current")
+        ln = "ln -sfn %s %s" % (os.path.join(dep.d_path, "rev", revs[-1]),
+            link_path)
+
+        stdin, stdout, stderr = ssh.exec_command(ln)
 
 def _symlink(d_path, rev_path, timestamp):
     """ Symlink the deployed revision to the deploy_path/current
