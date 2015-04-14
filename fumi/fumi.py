@@ -27,6 +27,7 @@
 
 from __future__ import print_function
 from fumi.deployments import *
+# from deployments import * # For development
 import argparse
 import os
 import sys
@@ -67,9 +68,9 @@ class Deployment(object):
         self.host = kwargs['host']
         self.user = kwargs['user']
         self.d_path = kwargs['deploy-path']
-        self.h_tmp = kwargs.get('host-tmp')
 
         # Optional information
+        self.h_tmp = kwargs.get('host-tmp')
         self.keep = kwargs.get('keep-max')
         self.default = kwargs.get('default')
         self.local_ign = kwargs.get('local-ignore')
@@ -117,13 +118,11 @@ def deploy(configuration):
     # Build deployment object
     dep = Deployment(**content[configuration])
 
-    # Local copy deployment
     if dep.s_type == "local":
         deploy_local(dep)
 
     elif dep.s_type == "git":
         deploy_git(dep)
-
 
 def list_configs():
     """ List the configurations present in the fumi.yml file. """
