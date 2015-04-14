@@ -97,10 +97,10 @@ Pre-deployment commands. These commands are executed before uploading/cloning th
 ```yaml
 predep:
     local:
-    - rm db/development.sql
-    - rm db/schema.rb
+        - rm db/development.sql
+        - rm db/schema.rb
     remote:
-    - service apache stop
+        - service apache stop
 ```
 
 #### local
@@ -118,9 +118,9 @@ Post-deployment commands. These commands are executed after the source has been 
 ```yaml
 postdep:
     remote:
-    - bundle install
-    - rake db:migrate
-    - touch tmp/restart.txt
+        - bundle install
+        - rake db:migrate
+        - touch tmp/restart.txt
 ```
 
 #### local
@@ -130,3 +130,19 @@ Again commands executed in local machine relative to current directory.
 #### remote
 
 Commands executed in remote server **relative to directory of current deployment** (`current`)
+
+### local-ignore
+
+Use this field if you are performing a *local* deployment type and you want *fumi* to ignore specific files and/or directories when compressing the source. For instance, this is how this field would look like for a project such as *fumi*:
+
+```yaml
+local-ignore:
+    - .git
+    - .gitignore
+    - docs
+    - build
+    - dist
+    - fumi.yml
+```
+
+This way, directories `.git`, `docs`, `build`, `dist` and  files `.gitignore`, `fumi` will not be added to the compressed file.
