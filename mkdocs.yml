@@ -3,4 +3,4 @@ pages:
 - [index.md, Overview]
 - [quickstart.md, Quickstart]
 - [deployment_file.md, Deployment file]
-theme: mkdocs
+theme: readthedocs

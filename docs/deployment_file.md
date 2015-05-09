@@ -96,20 +96,16 @@ Pre-deployment commands. These commands are executed before uploading/cloning th
 
 ```yaml
 predep:
-    local:
-        - rm db/development.sql
-        - rm db/schema.rb
-    remote:
-        - service apache stop
+    - local: 'rm db/development.sql'
+    - local: 'rm db/schema.rb'
+    - remote: 'service apache stop'
 ```
 
-#### local
+The order in this list will be preserved at the time of execution of the commands, so it is possible to alternate between local and remote commands easily.
 
-Commands to be executed in local machine. This field must be filled as an ordered list sorted by order of execution and are relative to the current directory.
+Local commands are executed **relative to the current directory** while remote commands are executed **relative to the user's directory**.
 
-#### remote
-
-Commands to be executed in remote machine. Again, written as an ordered list and relative to the home folder of the user used to deploy.
+Following YAML convention, the command should be escaped with single quotes in order to parse it as a raw string.
 
 ### postdep
 
@@ -117,19 +113,17 @@ Post-deployment commands. These commands are executed after the source has been 
 
 ```yaml
 postdep:
-    remote:
-        - bundle install
-        - rake db:migrate
-        - touch tmp/restart.txt
+    - remote: 'bundle install'
+    - remote: 'rake db:migrate'
+    - local: 'scp my_secret_config.rb myuser@myhost:/home/app/current'
+    - remote: 'touch tmp/restart.txt'
 ```
 
-#### local
+The order in this list will be preserved at the time of execution of the commands, so it is possible to alternate between local and remote commands easily.
 
-Again commands executed in local machine relative to current directory.
+Local commands are executed **relative to the current directory**, while remote commands are executed **relative to directory of current deployment** (`current`)
 
-#### remote
-
-Commands executed in remote server **relative to directory of current deployment** (`current`)
+Following YAML convention, the command should be escaped with single quotes in order to parse it as a raw string.
 
 ### local-ignore
 
