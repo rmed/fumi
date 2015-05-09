@@ -49,20 +49,18 @@ class Deployment(object):
         self.s_path = kwargs['source-path']
 
         # Pre-deployment commands
+        self.predep = None
         predep = kwargs.get('predep')
+
         if predep:
-            self.pre_local = predep.get('local')
-            self.pre_remote = predep.get('remote')
-        else:
-            self.pre_local = self.pre_remote = None
+            self.predep = predep
 
         # Post-deployment commands
+        self.postdep = None
         postdep = kwargs.get('postdep')
+
         if postdep:
-            self.post_local = postdep.get('local')
-            self.post_remote = postdep.get('remote')
-        else:
-            self.post_local = self.post_remote = None
+            self.postdep = postdep
 
         # Destination host information
         self.host = kwargs['host']

@@ -52,7 +52,7 @@ def deploy_local(deployment):
     print(term.bold_magenta("##########\n"))
 
 
-    _predep(deployment.pre_local, deployment.pre_remote)
+    _run_commands(deployment.predep)
 
     print(term.bold_cyan("Checking remote directory structures...\n"))
 
@@ -132,7 +132,7 @@ def deploy_local(deployment):
 
 
     # Run post-deployment commands
-    _postdep(deployment.post_local, deployment.post_remote,
+    _run_commands(deployment.postdep,
         os.path.join(deployment.d_path, "current"))
 
 
@@ -164,7 +164,7 @@ def deploy_git(deployment):
     print(term.bold_magenta("##########\n"))
 
 
-    _predep(deployment.pre_local, deployment.pre_remote)
+    _run_commands(deployment.predep)
 
     print(term.bold_cyan("Checking remote directory structures...\n"))
 
@@ -199,7 +199,7 @@ def deploy_git(deployment):
 
 
     # Run post-deployment commands
-    _postdep(deployment.post_local, deployment.post_remote,
+    _run_commands(deployment.postdep,
         os.path.join(deployment.d_path, "current"))
 
 
@@ -285,52 +285,6 @@ def _dir_exists(directory):
 
     return False
 
-def _postdep(local, remote, link_path):
-    """ Execute post-deployment commands (both local and remote).
-
-        Note that remote post-deployment commands are executed in the
-        directory of the revision that has been deployed
-        (deploy_path/current).
-    """
-    if local:
-        for cmd in local:
-            print(term.bold_cyan("Running local command: %s\n" % cmd))
-            subprocess.Popen(cmd, shell=True).wait()
-        print(term.bold_magenta("\n##########\n"))
-
-    # Executed relative to deploy_path/current
-    if remote:
-        for cmd in remote:
-            print(term.bold_cyan("Running remote command: %s\n" % cmd))
-            cd_command = "cd %s; %s" % (link_path, cmd)
-            stdin, stdout, stderr = ssh.exec_command(cd_command)
-            # TODO: better handling for SSH return codes?
-            # print(stdout.channel.recv_exit_status())
-            print(*stdout.readlines())
-        print(term.bold_magenta("\n##########\n"))
-
-def _predep(local, remote):
-    """ Execute pre-deployment commands (both local and remote).
-
-        Note that remote pre-deployment commands are usually executed
-        in the users directory (~/) when possible.
-    """
-    if local:
-        for cmd in local:
-            print(term.bold_cyan("Running local command: %s\n" % cmd))
-            subprocess.Popen(cmd, shell=True).wait()
-        print(term.bold_magenta("\n##########\n"))
-
-    # Executed relative to user directory
-    if remote:
-        for cmd in remote:
-            print(term.bold_cyan("Running remote command: %s\n" % cmd))
-            stdin, stdout, stderr = ssh.exec_command(cmd)
-            # TODO: better handling for SSH return codes?
-            # print(stdout.channel.recv_exit_status())
-            print(*stdout.readlines())
-        print(term.bold_magenta("\n##########\n"))
-
 def _rollback(dep, timestamp, level):
     """ Perform a rollback based on current deployment.
 
@@ -411,6 +365,45 @@ def _rollback(dep, timestamp, level):
             link_path)
 
         stdin, stdout, stderr = ssh.exec_command(ln)
+
+def _run_commands(commands, link_path=None):
+    """ Execute pre and post deployment commands (both local and remote).
+
+        Remote pre-deployment commands are usually executed in the user's
+        directory (~/) when possible, while post-deployment commands are
+        executed in the directory of the revision that has been deployed
+        (deploy_path/current).
+    """
+    if not commands:
+        return
+
+    for cmd in commands:
+
+        if cmd.startswith("local:"):
+            to_run = cmd.lstrip("local:").strip()
+            print(term.bold_cyan("Running local command: %s\n" % to_run))
+
+            subprocess.Popen(to_run, shell=True).wait()
+
+        elif cmd.startswith("remote:"):
+            to_run = cmd.lstrip("remote:").strip()
+
+            # Only for post-deployment commands
+            if link_path:
+                to_run = "cd %s; %s" % (link_path, to_run)
+
+            print(term.bold_cyan("Running remote command: %s\n" % to_run))
+
+            stdin, stdout, stderr = ssh.exec_command(to_run)
+            # TODO: better handling for SSH return codes?
+            # print(stdout.channel.recv_exit_status())
+            print(*stdout.readlines())
+
+        else:
+            print(term.bold_red("Uknown command: %s\n" % cmd))
+
+    print(term.bold_magenta("\n##########\n"))
+
 
 def _symlink(d_path, rev_path, timestamp):
     """ Symlink the deployed revision to the deploy_path/current
