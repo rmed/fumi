@@ -8,7 +8,9 @@ fumi fetches deployment configurations from a `fumi.yml` file. To start using fu
 Installation
 ------------
 
-    $ pip install fumi
+.. code-block::
+
+    pip install fumi
 
 Documentation
 -------------
@@ -18,6 +20,7 @@ Documentation is available at http://fumi.readthedocs.org
 Usage
 -----
 
+.. code-block::
 
     usage: fumi [-h] [--version] {deploy,list,new,remove} ...
 
