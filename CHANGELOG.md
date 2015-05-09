@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 [unreleased]
+## 0.2.0 - May 9th, 2015
 
 ### Added
 - Allow ignoring specific files and directories for `local` deployment type
@@ -10,6 +10,7 @@
 ### Changed
 - Improved output structure and formatting
 - Minor update to documentation
+- Changed the way pre and post-deployment commands are written and executed
 
 
 ## 0.1.1 - March 23rd, 2015
