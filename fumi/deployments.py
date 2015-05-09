@@ -378,15 +378,16 @@ def _run_commands(commands, link_path=None):
         return
 
     for cmd in commands:
+        k = list(cmd.keys())[0]
 
-        if cmd.startswith("local:"):
-            to_run = cmd.lstrip("local:").strip()
+        if k == "local":
+            to_run = cmd[k]
             print(term.bold_cyan("Running local command: %s\n" % to_run))
 
             subprocess.Popen(to_run, shell=True).wait()
 
-        elif cmd.startswith("remote:"):
-            to_run = cmd.lstrip("remote:").strip()
+        elif k == "remote":
+            to_run = cmd[k]
 
             # Only for post-deployment commands
             if link_path:
