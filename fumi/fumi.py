@@ -26,8 +26,9 @@
 # SOFTWARE.
 
 from __future__ import print_function
-from fumi.deployments import *
-# from deployments import * # For development
+
+# from fumi import deployments
+import deployments # For development
 import argparse
 import os
 import sys
@@ -117,10 +118,10 @@ def deploy(configuration):
     dep = Deployment(**content[configuration])
 
     if dep.s_type == "local":
-        deploy_local(dep)
+        deployments.deploy_local(dep)
 
     elif dep.s_type == "git":
-        deploy_git(dep)
+        deployments.deploy_git(dep)
 
 def list_configs():
     """ List the configurations present in the fumi.yml file. """
@@ -129,7 +130,12 @@ def list_configs():
         sys.exit("There is no fumi.yml file")
 
     for conf in content.keys():
-        print(conf)
+        default = content[conf].get("default", False)
+
+        if default:
+            print("- %s (default)" % conf)
+        else:
+            print("- %s" % conf)
 
 def new_config(name):
     """ Create new basic configuration in fumi.yml file. """
@@ -250,9 +256,6 @@ def parse_action(action, parsed):
     elif action == 'remove':
         remove_config(parsed.name)
 
-    else:
-        parser.print_help()
-
 
 def main():
     parser = init_parser()
@@ -266,5 +269,5 @@ def main():
     parse_action(sys.argv[1], args)
 
 # Only for development
-# if __name__ == "__main__":
-    # main()
+if __name__ == "__main__":
+    main()

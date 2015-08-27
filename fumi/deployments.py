@@ -43,24 +43,17 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 def deploy_local(deployment):
     """ Local based deployment. """
-    print(term.bold_cyan("Connecting to %s as %s...\n" % (
-        deployment.host, deployment.user)))
+    cprint("> Connecting to %s as %s..." % (
+        deployment.host, deployment.user), "cyan")
 
     ssh.connect(deployment.host, username=deployment.user)
-
-    print(term.bold_green("Connected!\n"))
-    print(term.bold_magenta("##########\n"))
-
+    cprint("Connected!\n", "green")
 
     _run_commands(deployment.predep)
 
-    print(term.bold_cyan("Checking remote directory structures...\n"))
-
-
+    cprint("> Checking remote directory structures...", "cyan")
     _check_dirs(deployment)
-
-    print(term.bold_green("Correct!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Correct!\n", "green")
 
 
     # Compress source to temporary directory
@@ -74,18 +67,17 @@ def deploy_local(deployment):
     else:
         cnt_list = os.listdir(deployment.s_path)
 
-    print(term.bold_cyan("Compressing source to /tmp/%s\n" % comp_file))
+    cprint("> Compressing source to /tmp/%s" % comp_file, "cyan")
 
     with tarfile.open(tmp_local, "w:gz") as tar:
         for item in cnt_list:
             tar.add(item, arcname=timestamp + "/" + item)
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Done!\n", "green")
 
 
     # Upload compressed source
-    print(term.bold_cyan("Uploading %s...\n" % comp_file))
+    cprint("> Uploading %s..." % comp_file, "cyan")
 
     uload = scp.SCPClient(ssh.get_transport())
     uload_tmp = deployment.h_tmp or "/tmp"
@@ -95,15 +87,15 @@ def deploy_local(deployment):
         uload.put(tmp_local, uload_path)
 
     except scp.SCPException as e:
+        cprint("Error uploading to server: %s\n" % e, "red")
         _rollback(deployment, timestamp, 3)
-        sys.exit(term.bold_red("Error uploading to server: %s" % e))
+        sys.exit()
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Done!\n", "green")
 
 
     # Uncompress source to deploy_path/rev
-    print(term.bold_cyan("Uncompressing remote file...\n"))
+    cprint("> Uncompressing remote file...", "cyan")
 
     rev_path = os.path.join(deployment.d_path, "rev")
     untar = "tar -C %s -zxvf %s" % (rev_path, uload_path)
@@ -112,19 +104,26 @@ def deploy_local(deployment):
     status = stdout.channel.recv_exit_status()
 
     if status == 127:
-        _rollback(deployment, timestamp, 1)
-        sys.exit(term.bold_red("Error: tar command not found in remote host"))
-    elif status == 1:
-        print(*stderr.readlines())
-        _rollback(deployment, timestamp, 2)
-        sys.exit(term.bold_red("Error: some files differ"))
-    elif status == 2:
-        print(*stderr.readlines())
-        _rollback(deployment, timestamp, 2)
-        sys.exit(term.bold_red("Fatal error when extracting remote file"))
+        cprint("Error: tar command not found in remote host\n", "red")
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+        _rollback(deployment, timestamp, 1)
+        sys.exit()
+
+    elif status == 1:
+        cprint("Error: some files differ\n", "red")
+        print(*stderr.readlines())
+
+        _rollback(deployment, timestamp, 2)
+        sys.exit()
+
+    elif status == 2:
+        cprint("Fatal error when extracting remote file", "red")
+        print(*stderr.readlines())
+
+        _rollback(deployment, timestamp, 2)
+        sys.exit()
+
+    cprint("Done!\n", "green")
 
 
     # Link directory
@@ -142,41 +141,33 @@ def deploy_local(deployment):
 
 
     # Cleanup temporary files
-    print(term.bold_cyan("Cleaning temporary files...\n"))
+    cprint("> Cleaning temporary files...", "cyan")
 
     subprocess.call(["rm", tmp_local])
     stdin, stdout, stderr = ssh.exec_command("rm %s" % uload_path)
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Done!\n", "green")
 
 
-    print(term.bold_green("Deployment complete!"))
+    cprint("Deployment complete!", "green")
 
 def deploy_git(deployment):
     """ Git based deployment. """
-    print(term.bold_cyan("Connecting to %s as %s...\n" % (
-        deployment.host, deployment.user)))
+    cprint("> Connecting to %s as %s..." % (
+        deployment.host, deployment.user), "cyan")
 
     ssh.connect(deployment.host, username=deployment.user)
-
-    print(term.bold_green("Connected!\n"))
-    print(term.bold_magenta("##########\n"))
-
+    cprint("Connected!\n", "green")
 
     _run_commands(deployment.predep)
 
-    print(term.bold_cyan("Checking remote directory structures...\n"))
-
-
+    cprint("> Checking remote directory structures...", "cyan")
     _check_dirs(deployment)
-
-    print(term.bold_green("Correct!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Correct!\n", "green")
 
 
     # Clone source
-    print(term.bold_cyan("Cloning repository...\n"))
+    cprint("> Cloning repository...", "cyan")
 
     timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
     rev_path = os.path.join(deployment.d_path, "rev")
@@ -190,8 +181,7 @@ def deploy_git(deployment):
         sys.exit(term.bold_red("git command not found in remote server"))
     # TODO: check git exit codes
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Done!\n", "green")
 
 
     # Link directory
@@ -208,7 +198,7 @@ def deploy_git(deployment):
         _clean_revisions(deployment.keep, rev_path)
 
 
-    print(term.bold_green("Deployment complete!"))
+    cprint("Deployment complete!", "green")
 
 
 def _check_dirs(dep):
@@ -238,7 +228,7 @@ def _clean_revisions(keep, rev_path):
         Only the most recent revisions will be kept, to a maximum defined
         by the keep argument.
     """
-    print(term.bold_cyan("Checking old revisions...\n"))
+    cprint("> Checking old revisions...", "cyan")
 
     stdin, stdout, stderr = ssh.exec_command("ls %s" % rev_path)
     status = stdout.channel.recv_exit_status()
@@ -256,12 +246,11 @@ def _clean_revisions(keep, rev_path):
             old_revisions.append(revisions.pop(0))
 
         for r in old_revisions:
-            print(term.bold_magenta("Removing revision %s\n" % r.strip()))
+            cprint("Removing revision %s" % r.strip(), "magenta")
             rm_old = "rm -rf %s" % os.path.join(rev_path, r.strip())
             stdin, stdout, stderr = ssh.exec_command(rm_old)
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("\nDone!\n", "green")
 
 def _create_tree(path):
     """ Try to create a remote tree path. """
@@ -297,7 +286,7 @@ def _rollback(dep, timestamp, level):
 
         All the levels lower to the one provided are executed as well.
     """
-    print(term.bold_red("Beginning rollback...\n"))
+    cprint("> Beginning rollback...", "cyan")
 
     comp_file = timestamp + ".tar.gz"
     rev_path = os.path.join(dep.d_path, "rev")
@@ -306,7 +295,7 @@ def _rollback(dep, timestamp, level):
         local_file = os.path.join("/tmp", comp_file)
 
         if os.path.isfile(local_file):
-            print(term.bold_magenta("Removing %s..." % local_file))
+            cprint("Removing %s..." % local_file, "magenta")
             os.remove(local_file)
 
     if level >= 2:
@@ -319,15 +308,15 @@ def _rollback(dep, timestamp, level):
         result = stdout.read()
 
         if result:
-            print(term.bold_magenta("Removing remote file %s..." %
-                remote_file))
+            cprint("Removing remote file %s..." %
+                remote_file, "magenta")
             stdin, stdout, stderr = ssh.exec_command(
                 "rm %s" % remote_file)
 
             status = stdout.channel.recv_exit_status()
 
             if status < 0:
-                print(term.bold_red("Remote error"))
+                cprint("Remote error", "red")
                 sys.exit(*stderr.readlines())
 
     if level >= 3:
@@ -337,15 +326,15 @@ def _rollback(dep, timestamp, level):
         result = stdout.read()
 
         if result:
-            print(term.bold_magenta("Removing remote revision %s...") %
-                timestamp)
+            cprint("Removing remote revision %s..." %
+                timestamp, "magenta")
             stdin, stdout, stderr = ssh.exec_command(
                 "rm -rf %s" % os.path.join(rev_path, timestamp))
 
             status = stdout.channel.recv_exit_status()
 
             if status < 0:
-                print(term.bold_red("Remote error"))
+                cprint("Remote error", "red")
                 sys.exit(*stderr.readlines())
 
     if level >= 4:
@@ -357,14 +346,16 @@ def _rollback(dep, timestamp, level):
         if timestamp in revs:
             revs.remove(timestamp)
 
-        print(term.bold_magenta("Linking previous revision %s..." %
-            revs[-1]))
+        cprint("Linking previous revision %s..." %
+            revs[-1], "magenta")
 
         link_path = os.path.join(dep.d_path, "current")
         ln = "ln -sfn %s %s" % (os.path.join(dep.d_path, "rev", revs[-1]),
             link_path)
 
         stdin, stdout, stderr = ssh.exec_command(ln)
+
+    cprint("Done!", "green")
 
 def _run_commands(commands, link_path=None):
     """ Execute pre and post deployment commands (both local and remote).
@@ -377,14 +368,16 @@ def _run_commands(commands, link_path=None):
     if not commands:
         return
 
+    cprint("> Command execution", "cyan")
     for cmd in commands:
         k = list(cmd.keys())[0]
 
         if k == "local":
             to_run = cmd[k]
-            print(term.bold_cyan("Running local command: %s\n" % to_run))
+            cprint("Running local command: %s" % to_run, "magenta")
 
             subprocess.Popen(to_run, shell=True).wait()
+            print("\n")
 
         elif k == "remote":
             to_run = cmd[k]
@@ -393,24 +386,26 @@ def _run_commands(commands, link_path=None):
             if link_path:
                 to_run = "cd %s; %s" % (link_path, to_run)
 
-            print(term.bold_cyan("Running remote command: %s\n" % to_run))
+            cprint("Running remote command: %s" % to_run, "magenta")
 
             stdin, stdout, stderr = ssh.exec_command(to_run)
             # TODO: better handling for SSH return codes?
             # print(stdout.channel.recv_exit_status())
             print(*stdout.readlines())
+            print("\n")
 
         else:
-            print(term.bold_red("Uknown command: %s\n" % cmd))
+            cprint("Uknown command: %s" % cmd, "red")
+            print("\n")
 
-    print(term.bold_magenta("\n##########\n"))
+    cprint("Done!\n", "green")
 
 
 def _symlink(d_path, rev_path, timestamp):
     """ Symlink the deployed revision to the deploy_path/current
         directory.
     """
-    print(term.bold_cyan("Linking directory...\n"))
+    cprint("> Linking directory...", "cyan")
 
     link_path = os.path.join(d_path, "current")
     current_rev = os.path.join(rev_path, timestamp)
@@ -419,5 +414,27 @@ def _symlink(d_path, rev_path, timestamp):
     stdin, stdout, stderr = ssh.exec_command(ln)
     # status = stdout.channel.recv_exit_status()
 
-    print(term.bold_green("Done!\n"))
-    print(term.bold_magenta("##########\n"))
+    cprint("Done!\n", "green")
+
+def cprint(text, color="white", bold=True):
+    """ Print the given text using blessings terminal. """
+    if color == "cyan":
+        to_print = term.cyan(text)
+
+    elif color == "green":
+        to_print = term.green(text)
+
+    elif color == "magenta":
+        to_print = term.magenta(text)
+
+    elif color == "red":
+        to_print = term.red(text)
+
+    else:
+        to_print = term.white(text)
+
+    if bold:
+        print(term.bold(to_print))
+
+    else:
+        print(to_print)
