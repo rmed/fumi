@@ -26,6 +26,8 @@ Or by running:
 
 where `CONF` is the configuration name that you want *fumi* to use.
 
+---
+
 ## Creating your first configuration
 
 In order to create a basic configuration with the bare minimum:
@@ -33,6 +35,8 @@ In order to create a basic configuration with the bare minimum:
     $ fumi new CONF
 
 This will create a `CONF` configuration in the `fumi.yml` file that you can adapt to your project's needs. However, you should take a look at the [structure of the deployment file](deployment_file.md) for advanced options and details.
+
+---
 
 ## Making your first deployment
 
@@ -46,6 +50,8 @@ to make your first deployment. Remember that you can also set it as default by r
 
 and specifying the configuration to use by default.
 
+---
+
 ## The deployment directory
 
 The remote deployment directory has the following structure:
@@ -58,6 +64,8 @@ The remote deployment directory has the following structure:
                 YOUR_PROJECT_FILES
 
 Each time you deploy your project, a new revision will be created in the `rev` directory, using timestamp of the deployment as name. This directory is then *symlinked* to the `current` directory, which is were the live version of your project can be accessed from.
+
+---
 
 ## Things to consider
 

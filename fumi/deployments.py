@@ -71,7 +71,9 @@ def deploy_local(deployment):
 
     with tarfile.open(tmp_local, "w:gz") as tar:
         for item in cnt_list:
-            tar.add(item, arcname=timestamp + "/" + item)
+            tar.add(
+                os.path.join(deployment.s_path, item),
+                arcname=timestamp + "/" + item)
 
     cprint("Done!\n", "green")
 
@@ -389,9 +391,12 @@ def _run_commands(commands, link_path=None):
             cprint("Running remote command: %s" % to_run, "magenta")
 
             stdin, stdout, stderr = ssh.exec_command(to_run)
-            # TODO: better handling for SSH return codes?
-            # print(stdout.channel.recv_exit_status())
-            print(*stdout.readlines())
+
+            # Print command output in real-time
+            while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    print(stdout.readline())
+
             print("\n")
 
         else:

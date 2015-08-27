@@ -1,6 +1,6 @@
 site_name: fumi documentation
 pages:
-- [index.md, Overview]
-- [quickstart.md, Quickstart]
-- [deployment_file.md, Deployment file]
+    - Overview: index.md
+    - Quickstart: quickstart.md
+    - Deployment file: deployment_file.md
 theme: readthedocs

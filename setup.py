@@ -35,7 +35,7 @@ with open(path.join(here, "DESCRIPTION.rst")) as f:
 
 setup(
     name='fumi',
-    version='0.2.0',
+    version='0.2.1',
 
     description='A small and (hopefully) simple deployment tool',
     long_description=long_description,
@@ -66,7 +66,7 @@ setup(
 
     install_requires=[
         'paramiko == 1.15.2',
-        'scp == 0.9.0',
+        'scp == 0.10.2',
         'pyyaml == 3.11',
         'blessings == 1.6'
     ],

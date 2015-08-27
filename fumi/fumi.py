@@ -27,15 +27,15 @@
 
 from __future__ import print_function
 
-# from fumi import deployments
-import deployments # For development
+from fumi import deployments
+# import deployments # For development
 import argparse
 import os
 import sys
 import yaml
 if sys.version[0] == "3": raw_input=input
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 CWD = os.getcwd()
 DEP_CONF = os.path.join(CWD, 'fumi.yml')
@@ -269,5 +269,5 @@ def main():
     parse_action(sys.argv[1], args)
 
 # Only for development
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

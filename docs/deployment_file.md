@@ -2,6 +2,8 @@
 
 The deployment file is named `fumi.yml` and should be located in the root directory of the project. This file follows standard YAML syntax, so it should not be too difficult to modify manually.
 
+---
+
 ## A basic deployment file
 
 A basic `fumi.yml` file will have a structure similar to this one:
@@ -40,41 +42,45 @@ wuzhang:
 
 Following sections detail mandatory and optional fields for configurations.
 
+---
+
 ## Mandatory fields
 
 These fields must be present for *fumi* to work.
 
-### source-type
+### **source-type**
 
 The `source-type` is used to find which basic actions must be taken in order to get the project into the remote server. Available types are:
 
 - **local**: compress local directory and upload it to server through SSH.
 - **git**: clone a git repository directly in the remote server.
 
-### source-path
+### **source-path**
 
 The `source-path` is used to tell *fumi* where to get the project from. Depending on the `source-type`:
 
 - **local**: local directory in which the source can be found (usuarlly specifying the current directory with `.` is enough).
 - **git**: the git url needed for the `git clone URL` command to be executed in the server.
 
-### host
+### **host**
 
 The remote `host` that *fumi* must connect to. Make sure SSH is enabled!
 
-### user
+### **user**
 
 User that will be in charge of performing the deployments. You may want to create a special user for this, just in case.
 
-### deploy-path
+### **deploy-path**
 
 The directory that will contain current deployment and past revisions as detailed in the [deployment directory section](quickstart.md#the-deployment-directory).
+
+---
 
 ## Optional fields
 
 These fields are optional, but may be helpful in most cases.
 
-### default
+### **default**
 
 The `default` field will allow you to run `fumi deploy` without specifying a configuration name. If you choose to specify it manually, add the following to any configuration:
 
@@ -82,15 +88,15 @@ The `default` field will allow you to run `fumi deploy` without specifying a con
 
 Note that *fumi* will obtain the list of configurations alphabetically, so take that into account if you write the field in several configurations.
 
-### host-tmp
+### **host-tmp**
 
 By default, when using the `local` source type, the compressed source will be uploaded to `/tmp`. With this field you can specify the directory in which to upload the file instead.
 
-### keep-max
+### **keep-max**
 
 Integer number that can be used to specify the maximum number of revisions to keep in the `rev` directory. After deploying, *fumi* will check this number and the number of revisions stored remotely and remove several of them until the maximum allowed is satisfied.
 
-### predep
+### **predep**
 
 Pre-deployment commands. These commands are executed before uploading/cloning the source in the remote server. This field has a structure similar to:
 
@@ -107,7 +113,7 @@ Local commands are executed **relative to the current directory** while remote c
 
 Following YAML convention, the command should be escaped with single quotes in order to parse it as a raw string.
 
-### postdep
+### **postdep**
 
 Post-deployment commands. These commands are executed after the source has been uploaded/cloned in the server and linked to the `current` directory. An usage example of this field would be when deploying a ruby on rails application:
 
@@ -125,7 +131,7 @@ Local commands are executed **relative to the current directory**, while remote 
 
 Following YAML convention, the command should be escaped with single quotes in order to parse it as a raw string.
 
-### local-ignore
+### **local-ignore**
 
 Use this field if you are performing a *local* deployment type and you want *fumi* to ignore specific files and/or directories when compressing the source. For instance, this is how this field would look like for a project such as *fumi*:
 

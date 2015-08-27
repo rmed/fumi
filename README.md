@@ -1,26 +1,28 @@
-fumi [![PyPI version](https://img.shields.io/pypi/v/fumi.svg)](https://pypi.python.org/pypi/fumi)
-============================================================
+# fumi [![PyPI version](https://img.shields.io/pypi/v/fumi.svg)](https://pypi.python.org/pypi/fumi)
 
 A small and (hopefully) simple deployment tool.
 
 fumi fetches deployment configurations from a `fumi.yml` file. To start using fumi in a project, simply create that file (either manually or with fumi).
 
-Installation
-------------
+## Installation
 
 ```
 $ pip install fumi
 ```
 
-Documentation
--------------
+## Documentation
 
-Documentation is available online at [http://fumi.readthedocs.org](http://fumi.readthedocs.org)
+Documentation is available online at [http://fumi.readthedocs.org](http://fumi.readthedocs.org).
 
-Usage
------
+You may also build the documentation using MkDocs:
 
-```
+~~~shell
+$ mkdocs build
+~~~
+
+## Usage
+
+~~~
 usage: fumi [-h] [--version] {deploy,list,new,remove} ...
 
 Simple deployment tool
@@ -35,4 +37,4 @@ commands:
     list                list all the available deployment configurations
     new                 create new deployment configuration
     remove              remove a configuration from the deployment file
-```
+~~~
