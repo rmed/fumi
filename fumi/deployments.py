@@ -28,6 +28,7 @@
 from __future__ import print_function
 from blessings import Terminal
 import datetime
+import getpass
 import os
 import paramiko
 import scp
@@ -35,10 +36,7 @@ import subprocess
 import sys
 import tarfile
 
-
 term = Terminal()
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 
 def deploy_local(deployment):
@@ -46,13 +44,13 @@ def deploy_local(deployment):
     cprint("> Connecting to %s as %s..." % (
         deployment.host, deployment.user), "cyan")
 
-    ssh.connect(deployment.host, username=deployment.user)
+    ssh = _connect(deployment)
     cprint("Connected!\n", "green")
 
-    _run_commands(deployment.predep)
+    _run_commands(ssh, deployment.predep)
 
     cprint("> Checking remote directory structures...", "cyan")
-    _check_dirs(deployment)
+    _check_dirs(ssh, deployment)
     cprint("Correct!\n", "green")
 
 
@@ -90,7 +88,7 @@ def deploy_local(deployment):
 
     except scp.SCPException as e:
         cprint("Error uploading to server: %s\n" % e, "red")
-        _rollback(deployment, timestamp, 3)
+        _rollback(ssh, deployment, timestamp, 3)
         sys.exit()
 
     cprint("Done!\n", "green")
@@ -108,38 +106,38 @@ def deploy_local(deployment):
     if status == 127:
         cprint("Error: tar command not found in remote host\n", "red")
 
-        _rollback(deployment, timestamp, 1)
+        _rollback(ssh, deployment, timestamp, 1)
         sys.exit()
 
     elif status == 1:
         cprint("Error: some files differ\n", "red")
         print(*stderr.readlines())
 
-        _rollback(deployment, timestamp, 2)
+        _rollback(ssh, deployment, timestamp, 2)
         sys.exit()
 
     elif status == 2:
         cprint("Fatal error when extracting remote file", "red")
         print(*stderr.readlines())
 
-        _rollback(deployment, timestamp, 2)
+        _rollback(ssh, deployment, timestamp, 2)
         sys.exit()
 
     cprint("Done!\n", "green")
 
 
     # Link directory
-    _symlink(deployment.d_path, rev_path, timestamp)
+    _symlink(ssh, deployment.d_path, rev_path, timestamp)
 
 
     # Run post-deployment commands
-    _run_commands(deployment.postdep,
+    _run_commands(ssh, deployment.postdep,
         os.path.join(deployment.d_path, "current"))
 
 
     # Clean revisions
     if deployment.keep:
-        _clean_revisions(deployment.keep, rev_path)
+        _clean_revisions(ssh, deployment.keep, rev_path)
 
 
     # Cleanup temporary files
@@ -158,13 +156,13 @@ def deploy_git(deployment):
     cprint("> Connecting to %s as %s..." % (
         deployment.host, deployment.user), "cyan")
 
-    ssh.connect(deployment.host, username=deployment.user)
+    ssh = _connect(deployment)
     cprint("Connected!\n", "green")
 
-    _run_commands(deployment.predep)
+    _run_commands(ssh, deployment.predep)
 
     cprint("> Checking remote directory structures...", "cyan")
-    _check_dirs(deployment)
+    _check_dirs(ssh, deployment)
     cprint("Correct!\n", "green")
 
 
@@ -187,44 +185,44 @@ def deploy_git(deployment):
 
 
     # Link directory
-    _symlink(deployment.d_path, rev_path, timestamp)
+    _symlink(ssh, deployment.d_path, rev_path, timestamp)
 
 
     # Run post-deployment commands
-    _run_commands(deployment.postdep,
+    _run_commands(ssh, deployment.postdep,
         os.path.join(deployment.d_path, "current"))
 
 
     # Clean revisions
     if deployment.keep:
-        _clean_revisions(deployment.keep, rev_path)
+        _clean_revisions(ssh, deployment.keep, rev_path)
 
 
     cprint("Deployment complete!", "green")
 
 
-def _check_dirs(dep):
+def _check_dirs(ssh, dep):
     """ Check if all the necessary directories exist
         and the user has permission to write to them.
     """
     # Remote temporary
     if dep.h_tmp:
-        if not _dir_exists(dep.h_tmp) and not _create_tree(dep.h_tmp):
+        if not _dir_exists(ssh, dep.h_tmp) and not _create_tree(ssh, dep.h_tmp):
             sys.exit(term.bold_red(
                 "Cannot create remote temporary directory"))
 
     # Deployment path
-    if not _dir_exists(dep.d_path) and not _create_tree(dep.d_path):
+    if not _dir_exists(ssh, dep.d_path) and not _create_tree(ssh, dep.d_path):
         sys.exit(term.bold_red(
             "Cannot create remote deployment directory"))
 
     # Revisions
     rev = os.path.join(dep.d_path, "rev")
-    if not _dir_exists(rev) and not _create_tree(rev):
+    if not _dir_exists(ssh, rev) and not _create_tree(ssh, rev):
         sys.exit(term.bold_red(
             "Cannot create remote revisions directory"))
 
-def _clean_revisions(keep, rev_path):
+def _clean_revisions(ssh, keep, rev_path):
     """ Remove old revisions from the remote server.
 
         Only the most recent revisions will be kept, to a maximum defined
@@ -254,7 +252,54 @@ def _clean_revisions(keep, rev_path):
 
     cprint("\nDone!\n", "green")
 
-def _create_tree(path):
+def _connect(deployment):
+    """ Try to connect to the remote host through SSH using information from
+        the provided Deployment object.
+
+        returns a paramiko.SSHClient instance
+    """
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    if not deployment.use_password:
+        # Not using password, rely on public key authentication
+        try:
+            cprint("Trying to connect using public key\n", "magenta")
+            ssh.connect(deployment.host, username=deployment.user)
+
+        except:
+            # May raise AuthenticationException or PasswordRequiredException
+            cprint("Could not connect using public key", "red")
+            sys.exit()
+
+    elif deployment.use_password and not deployment.password:
+        # Using password but not supplied in the yml file, ask for it
+        cprint("Connection requires a password\n", "magenta")
+        pwd = getpass.getpass("Password: ")
+
+        try:
+            ssh.connect(deployment.host,
+                username=deployment.user, password=pwd)
+
+        except:
+            cprint("Could not connect, please check your credentials", "red")
+            sys.exit()
+
+    elif deployment.use_password and deployment.password:
+        # Using password and supplied in the yml file
+        cprint("Trying to connect using provided password\n", "magenta")
+
+        try:
+            ssh.connect(deployment.host,
+                username=deployment.user, password=deployment.password)
+
+        except:
+            cprint("Could not connect, please check your credentials", "red")
+            sys.exit()
+
+    return ssh
+
+def _create_tree(ssh, path):
     """ Try to create a remote tree path. """
     stdin, stdout, stderr = ssh.exec_command(
         "mkdir -p %s" % path)
@@ -264,7 +309,7 @@ def _create_tree(path):
 
     return False
 
-def _dir_exists(directory):
+def _dir_exists(ssh, directory):
     """ Check whether a remote directory exists or not. """
     stdin, stdout, stderr = ssh.exec_command(
         "[ -d %s ] && echo OK" % directory)
@@ -276,7 +321,7 @@ def _dir_exists(directory):
 
     return False
 
-def _rollback(dep, timestamp, level):
+def _rollback(ssh, dep, timestamp, level):
     """ Perform a rollback based on current deployment.
 
         Rollbacks have several levels:
@@ -359,7 +404,7 @@ def _rollback(dep, timestamp, level):
 
     cprint("Done!", "green")
 
-def _run_commands(commands, link_path=None):
+def _run_commands(ssh, commands, link_path=None):
     """ Execute pre and post deployment commands (both local and remote).
 
         Remote pre-deployment commands are usually executed in the user's
@@ -406,7 +451,7 @@ def _run_commands(commands, link_path=None):
     cprint("Done!\n", "green")
 
 
-def _symlink(d_path, rev_path, timestamp):
+def _symlink(ssh, d_path, rev_path, timestamp):
     """ Symlink the deployed revision to the deploy_path/current
         directory.
     """

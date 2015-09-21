@@ -67,6 +67,8 @@ class Deployment(object):
         self.host = kwargs['host']
         self.user = kwargs['user']
         self.d_path = kwargs['deploy-path']
+        self.use_password = kwargs.get('use-password', False)
+        self.password = kwargs.get('password')
 
         # Optional information
         self.h_tmp = kwargs.get('host-tmp')
