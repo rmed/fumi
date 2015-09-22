@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 - Sep 22nd, 2015
+
+### Added
+- Allow connecting with password instead of public key
+- Added `use-password` and `password` fields to deployment file
+
+### Changed
+- Improved output format
+- Changed how remote command output is displayed
+
+
 ## 0.2.0 - May 9th, 2015
 
 ### Added

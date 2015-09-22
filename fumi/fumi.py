@@ -35,7 +35,7 @@ import sys
 import yaml
 if sys.version[0] == "3": raw_input=input
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 CWD = os.getcwd()
 DEP_CONF = os.path.join(CWD, 'fumi.yml')
@@ -149,21 +149,23 @@ def new_config(name):
         sys.exit("Configuration '%s' already exists" % name)
 
     content[name] = {
-        "source-type": "",
-        "source-path": "",
+        "source-type" : "",
+        "source-path" : "",
 
-        "predep": {
-            "local": None,
-            "remote": None
+        "predep"  : {
+            "local"  : None,
+            "remote" : None
         },
-        "postdep": {
-            "local": None,
-            "remote": None
+        "postdep" : {
+            "local"  : None,
+            "remote" : None
         },
 
-        "host": "",
-        "user": "",
-        "deploy-path": "",
+        "host"         : "",
+        "user"         : "",
+        "use-password" : True,
+        "password"     : "",
+        "deploy-path"  : "",
     }
 
     write_yaml(content)
@@ -196,7 +198,7 @@ def read_yaml():
             try:
                 content = yaml.load(fumi_yml)
 
-            except (yaml.YAMLError, e):
+            except yaml.YAMLError as e:
                 sys.exit("Error in deployment file:", e)
 
         return content
@@ -209,7 +211,7 @@ def write_yaml(content):
         try:
             yaml.dump(content, fumi_yml, default_flow_style=False)
 
-        except (yaml.YAMLError, e):
+        except yaml.YAMLError as e:
             sys.exit("Error writing yaml to deployment file:", e)
 
 def init_parser():

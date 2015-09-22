@@ -35,7 +35,7 @@ with open(path.join(here, "DESCRIPTION.rst")) as f:
 
 setup(
     name='fumi',
-    version='0.2.1',
+    version='0.3.0',
 
     description='A small and (hopefully) simple deployment tool',
     long_description=long_description,
