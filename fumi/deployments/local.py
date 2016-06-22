@@ -187,7 +187,7 @@ def deploy(deployer):
     util.cprint('> Cleaning temporary files...', 'cyan')
 
     util.remove_local(tmp_local)
-    util.remove_remote(uload_path)
+    util.remove_remote(ssh, uload_path)
 
     util.cprint('Done!\n', 'green')
 
