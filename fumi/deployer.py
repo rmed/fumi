@@ -71,7 +71,8 @@ class Deployer(object):
 
         for p in predep:
             # Single key dicts
-            self.predep.append((p.keys[0], p[p.keys[0]]))
+            for k, v in p.items():
+                self.predep.append((k, v))
 
         # Post-deployment commands
         postdep = kwargs.get('postdep', [])
@@ -79,7 +80,8 @@ class Deployer(object):
 
         for p in postdep:
             # Single key dicts
-            self.postdep.append((p.keys[0], p[p.keys[0]]))
+            for k, v in p.items():
+                self.postdep.append((k, v))
 
         # Destination host information
         self.host = kwargs['host']

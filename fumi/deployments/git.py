@@ -72,11 +72,11 @@ def deploy(deployer):
     # Clone source
     util.cprint('> Cloning repository...', 'cyan')
 
-    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%Sr')
+    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
     rev_path = os.path.join(deployer.deploy_path, 'rev')
-    current_rev = os.path.join(deployer.d_path, 'rev', timestamp)
+    current_rev = os.path.join(deployer.deploy_path, 'rev', timestamp)
 
-    clone = 'git clone %s %s' % (deployer.s_path, current_rev)
+    clone = 'git clone %s %s' % (deployer.source_path, current_rev)
 
     stdin, stdout, stderr = ssh.exec_command(clone)
     status = stdout.channel.recv_exit_status()

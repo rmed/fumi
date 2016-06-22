@@ -170,7 +170,7 @@ def clean_revisions(ssh, keep_max, rev_path):
             rm_old = 'rm -rf %s' % os.path.join(rev_path, r.strip())
             stdin, stdout, stderr = ssh.exec_command(rm_old)
 
-    cprint('\nDone!\n', 'green')
+    cprint('Done!\n', 'green')
     return True
 
 def create_tree(ssh, path):
@@ -466,7 +466,6 @@ def run_commands(ssh, commands, remote_path=None):
             cprint('Running local command: %s' % to_run, 'magenta')
 
             subprocess.Popen(to_run, shell=True).wait()
-            cprint('\n')
 
         elif command_type == 'remote':
             if remote_path:
@@ -482,8 +481,6 @@ def run_commands(ssh, commands, remote_path=None):
             while not stdout.channel.exit_status_ready():
                 if stdout.channel.recv_ready():
                     cprint(stdout.readline())
-
-            cprint('\n')
 
         else:
             # Unknown type, skip
