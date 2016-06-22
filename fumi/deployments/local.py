@@ -178,6 +178,10 @@ def deploy(deployer):
         return False
 
 
+    # Link shared paths
+    util.symlink_shared(ssh, deployer)
+
+
     # Clean revisions
     if deployer.keep_max:
         status = util.clean_revisions(ssh, deployer.keep_max, rev_path)

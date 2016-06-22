@@ -25,22 +25,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This file contains the implementation of the ``git`` deployment."""
+"""This file contains the implementation of the ``prepare`` "deployment"."""
 
 import datetime
 import os
+import scp
+import tarfile
 
 from fumi import util
 
 
-def deploy(deployer):
-    """Git based deployment.
+def prepare(deployer):
+    """Test connection and prepare directories.
 
     Arguments:
         deployer (``Deployer``): Deployer instance.
 
     Returns:
-        Boolean indicating result of the deployment.
+        Boolean indicating result of the preparation.
     """
     # SSH connection
     util.cprint('> Connecting to %s as %s...' % (
@@ -53,12 +55,6 @@ def deploy(deployer):
     util.cprint('Connected!\n', 'green')
 
 
-    # Predeployment commands
-    status, util.run_commands(ssh, deployer.predep)
-    if not status:
-        return False
-
-
     # Directory structures
     util.cprint('> Checking remote directory structures...', 'cyan')
 
@@ -69,54 +65,8 @@ def deploy(deployer):
     util.cprint('Correct!\n', 'green')
 
 
-    # Clone source
-    util.cprint('> Cloning repository...', 'cyan')
-
-    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-    rev_path = os.path.join(deployer.deploy_path, 'rev')
-    current_rev = os.path.join(deployer.deploy_path, 'rev', timestamp)
-
-    clone = 'git clone %s %s' % (deployer.source_path, current_rev)
-
-    stdin, stdout, stderr = ssh.exec_command(clone)
-    status = stdout.channel.recv_exit_status()
-
-    if status == 127:
-        util.cprint('git command not found in remote server')
-        return False
-    # TODO: check git exit codes
-
-    util.cprint('Done!\n', 'green')
-
-
-    # Link directory
-    status = util.symlink(ssh, deployer, rev_path, timestamp)
-    if not status:
-        util.rollback(ssh, deployer, timestamp, 3)
-        return False
-
-
-    # Run post-deployment commands
-    status = util.run_commands(
-        ssh,
-        deployer.postdep,
-        os.path.join(deployer.deploy_path, 'current'))
-
-    if not status:
-        util.rollback(ssh, deployer, timestamp, 3)
-        return False
-
-
-    # Link shared paths
-    util.symlink_shared(ssh, deployer)
-
-
-    # Clean revisions
-    if deployer.keep_max:
-        status = util.clean_revisions(ssh, deployer.keep_max, rev_path)
-
-
-    util.cprint('Deployment complete!', 'green')
+    util.cprint('Preparation complete!', 'green')
+    util.cprint('Make sure to upload shared files before deploying', 'white')
 
     # Close SSH connection
     ssh.close()

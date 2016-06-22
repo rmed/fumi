@@ -41,11 +41,14 @@ from fumi.deployer import build_deployer
 FUMI_YML = os.path.join(os.getcwd(), 'fumi.yml')
 
 
-def deploy(conf_name):
+def deploy(conf_name, prepare=False):
     """Deploy using given configuration.
 
     Arguments:
         conf_name (str): Name of the configuration to use in the deployment.
+        prepare (bool): Whether or not this is a preparation deployment.
+            A preparation simply checks connection and creates the remote
+            directory tree.
     """
     status, content = util.read_yaml(FUMI_YML)
 
@@ -103,8 +106,13 @@ def deploy(conf_name):
     if not status:
         sys.exit(-1)
 
-    # Deploy!
-    result = deployer.deploy()
+    if prepare:
+        # Preparation
+        result = deployer.prepare()
+
+    else:
+        # Deploy!
+        result = deployer.deploy()
 
     if not result:
         sys.exit(-1)
@@ -132,7 +140,11 @@ def list_configs():
 
 
 def new_config(name):
-    """ Create new basic configuration in fumi.yml file. """
+    """Create new basic configuration in fumi.yml file.
+
+    Arguments:
+        name (str): Name for the new configuration.
+    """
     status, content = util.read_yaml(FUMI_YML)
 
     if not status:
@@ -200,32 +212,55 @@ def remove_config(name):
 def init_parser():
     """ Initialize the arguments parser. """
     parser = argparse.ArgumentParser(
-        description="Simple deployment tool")
+        description='Simple deployment tool')
 
     parser.add_argument('--version', action='version',
         version='%(prog)s ' + __version__)
 
-    subparsers = parser.add_subparsers(title="commands")
+    subparsers = parser.add_subparsers(title='commands')
+
 
     # deploy
-    parser_deploy = subparsers.add_parser("deploy",
-        help="deploy with given configuration")
-    parser_deploy.add_argument("configuration", nargs="?",
-        help="configuration to use")
+    parser_deploy = subparsers.add_parser(
+        'deploy',
+        help='deploy with given configuration')
+
+    parser_deploy.add_argument(
+        'configuration', nargs='?',
+        help='configuration to use')
+
 
     # list
-    parser_list = subparsers.add_parser("list",
-        help="list all the available deployment configurations")
+    parser_list = subparsers.add_parser(
+        'list',
+        help='list all the available deployment configurations')
+
 
     # new
-    parser_new = subparsers.add_parser("new",
-        help="create new deployment configuration")
-    parser_new.add_argument("name", help="name for the configuration")
+    parser_new = subparsers.add_parser(
+        'new',
+        help='create new deployment configuration')
+
+    parser_new.add_argument('name', help='name for the new configuration')
+
+
+    # prepare
+    parser_prepare = subparsers.add_parser(
+        'prepare',
+        help='test connection and prepare remote directories')
+
+    parser_prepare.add_argument(
+        'configuration',
+        nargs='?',
+        help='configuration to use')
+
 
     # remove
-    parser_remove = subparsers.add_parser("remove",
-        help="remove a configuration from the deployment file")
-    parser_remove.add_argument("name", help="name of the configuration")
+    parser_remove = subparsers.add_parser(
+        'remove',
+        help='remove a configuration from the deployment file')
+
+    parser_remove.add_argument('name', help='name of the configuration')
 
     return parser
 
@@ -240,9 +275,14 @@ def parse_action(action, parsed):
     elif action == 'new':
         new_config(parsed.name)
 
+    elif action == 'prepare':
+        deploy(parsed.configuration, prepare=True)
+
     elif action == 'remove':
         remove_config(parsed.name)
 
+    else:
+        util.cprint('Unknown action')
 
 def main():
     """Entrypoint for the program."""

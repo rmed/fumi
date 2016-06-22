@@ -58,6 +58,9 @@ class Deployer(object):
             ``local`` deployments.
         buffer_size (int): Buffer size (in bytes) for file copying in ``local``
             deployments. Defaults to 1 MB.
+        shared_paths (list[str]): List of file and directory paths that 
+            should be shared accross deployments. These are relative to the
+            root of the project and are linked to the current revision.
     """
 
     def __init__(self, **kwargs):
@@ -95,12 +98,13 @@ class Deployer(object):
         self.keep_max = kwargs.get('keep-max')
         self.local_ignore = kwargs.get('local-ignore')
         self.buffer_size = kwargs.get('buffer-size', 1024 * 1024)
+        self.shared_paths = kwargs.get('shared-paths', [])
 
 def build_deployer(config):
     """Build a Deployer object.
 
     Arguments:
-        config: Parsed section of the YAML configuration file.
+        config (dict): Parsed section of the YAML configuration file.
 
     Returns:
         Boolean indicating result and ``Deployer`` instance or ``None``.
@@ -116,11 +120,11 @@ def build_deployer(config):
 
     # Determine deployment function to use
     if deployer.source_type == 'local':
-        cprint('Using "local" deployment')
+        cprint('Performing a "local" deployment')
         deployer.deploy = types.MethodType(deployments.deploy_local, deployer)
 
     elif deployer.source_type == 'git':
-        cprint('Using "git" deployment')
+        cprint('Performing a "git" deployment')
         deployer.deploy = types.MethodType(deployments.deploy_git, deployer)
 
     else:
@@ -128,5 +132,7 @@ def build_deployer(config):
         cprint('Unknown deployment type: %s' % deployer.source_type, 'red')
         return False, None
 
+    # Additional method for preparing/testing the deployment
+    deployer.prepare = types.MethodType(deployments.prepare, deployer)
 
     return True, deployer

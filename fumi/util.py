@@ -73,6 +73,12 @@ def check_dirs(ssh, deployer):
         cprint('Cannot create remote revisions directory', 'red')
         return False
 
+    # Shared files
+    shared = os.path.join(deployer.deploy_path, 'shared')
+    if not dir_exists(ssh, shared) and not create_tree(ssh, shared):
+        cprint('Cannot create remote shared directory', 'red')
+        return False
+
     return True
 
 def connect(deployer):
@@ -510,6 +516,39 @@ def symlink(ssh, deployer, rev_path, timestamp):
 
     stdin, stdout, stderr = ssh.exec_command(ln)
     # status = stdout.channel.recv_exit_status()
+
+    cprint('Done!\n', 'green')
+    return True
+
+def symlink_shared(ssh, deployer):
+    """Symlink shared files to the deploy_path/current directory.
+
+    Arguments:
+        ssh: Established SSH connection instance.
+        deployer (``Deployer``): Deployer instance.
+
+    Returns:
+        Boolean indicating result.
+    """
+    if not deployer.shared_paths:
+        # Nothing to link
+        return True
+
+    cprint('> Linking shared files...', 'cyan')
+
+    current_path = os.path.join(deployer.deploy_path, 'current')
+    shared_path = os.path.join(deployer.deploy_path, 'shared')
+
+    for shared in deployer.shared_paths:
+        cprint('Linking: %s' % shared, 'magenta')
+
+        src_path = os.path.join(shared_path, shared)
+        dest_path = os.path.join(current_path, shared)
+
+        ln = 'ln -sfn %s %s' % (src_path, dest_path)
+
+        stdin, stdout, stderr = ssh.exec_command(ln)
+        # status = stdout.channel.recv_exit_status()
 
     cprint('Done!\n', 'green')
     return True
