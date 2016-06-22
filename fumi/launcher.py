@@ -79,7 +79,7 @@ def deploy(conf_name):
             for k in content.keys():
                 util.cprint('- %s' % k)
 
-            default = six.moves._input(
+            default = six.moves.input(
                 "Which one do you want to set as default?: ")
 
             if default in content.keys():
