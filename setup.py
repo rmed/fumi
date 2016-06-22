@@ -5,7 +5,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2015 Rafael Medina García <rafamedgar@gmail.com>
+# Copyright (c) 2016 Rafael Medina García <rafamedgar@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
 
     keywords='fumi deploy git remote ssh',
@@ -65,15 +66,16 @@ setup(
     packages=find_packages(),
 
     install_requires=[
-        'paramiko == 1.15.2',
-        'scp == 0.10.2',
-        'pyyaml == 3.11',
-        'blessings == 1.6'
+        'blessings==1.6',
+        'paramiko==2.0.1',
+        'pyyaml==3.11',
+        'scp==0.10.2',
+        'six==1.10.0'
     ],
 
     entry_points={
         'console_scripts': [
-            'fumi = fumi.fumi:main'
+            'fumi = fumi.launcher:main'
         ]
     }
 )
