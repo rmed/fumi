@@ -79,7 +79,8 @@ def deploy(conf_name):
             for k in content.keys():
                 util.cprint('- %s' % k)
 
-            default = six.input("Which one do you want to set as default?: ")
+            default = six.moves._input(
+                "Which one do you want to set as default?: ")
 
             if default in content.keys():
                 content[default]['default'] = True
