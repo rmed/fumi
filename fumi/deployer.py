@@ -25,7 +25,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Code for the ``Deployer`` class, which acts as proxy for deployments."""
+"""Code for the ``Deployer`` class, which acts as proxy for configurations."""
 
 import types
 
@@ -39,8 +39,6 @@ class Deployer(object):
     Attributes:
         source_type (str): Source type (e.g. 'local' or 'git'). Required.
         source_path (str): Path to the source files in local machine. Required.
-        predep (list[str]): List of commands to execute before deploying.
-        postdep (list[str]): List of commands to execute after deploying.
         host (str): Host to perform the deployment in. Required.
         user (str): User to use for the deployment. Required.
         use_password (bool): Whether or not to use password. If set to ``False``
@@ -51,6 +49,8 @@ class Deployer(object):
             be used to specify the password used for the connection. Otherwise
             it will be asked for during deployment.
         deploy_path (str): Remote host path in which to deploy files. Required.
+        predep (list[str]): List of commands to execute before deploying.
+        postdep (list[str]): List of commands to execute after deploying.
         host_tmp (str): In ``local`` deployments, the remote directory to use
             for uploading the compressed files (defaults to ``'/tmp'``).
         keep_max (int): Maximum revisions to keep in the remote server.
@@ -58,7 +58,7 @@ class Deployer(object):
             ``local`` deployments.
         buffer_size (int): Buffer size (in bytes) for file copying in ``local``
             deployments. Defaults to 1 MB.
-        shared_paths (list[str]): List of file and directory paths that 
+        shared_paths (list[str]): List of file and directory paths that
             should be shared accross deployments. These are relative to the
             root of the project and are linked to the current revision.
     """
@@ -67,6 +67,13 @@ class Deployer(object):
         # Source information
         self.source_type = kwargs['source-type']
         self.source_path = kwargs['source-path']
+
+        # Destination host information
+        self.host = kwargs['host']
+        self.user = kwargs['user']
+        self.use_password = kwargs.get('use-password', False)
+        self.password = kwargs.get('password')
+        self.deploy_path = kwargs['deploy-path']
 
         # Pre-deployment commands
         predep = kwargs.get('predep', [])
@@ -86,18 +93,12 @@ class Deployer(object):
             for k, v in p.items():
                 self.postdep.append((k, v))
 
-        # Destination host information
-        self.host = kwargs['host']
-        self.user = kwargs['user']
-        self.use_password = kwargs.get('use-password', False)
-        self.password = kwargs.get('password')
-        self.deploy_path = kwargs['deploy-path']
 
         # Optional information
         self.host_tmp = kwargs.get('host-tmp', '/tmp')
         self.keep_max = kwargs.get('keep-max')
         self.local_ignore = kwargs.get('local-ignore')
-        self.buffer_size = kwargs.get('buffer-size', 1024 * 1024)
+        self.buffer_size = int(kwargs.get('buffer-size', 1024 * 1024))
         self.shared_paths = kwargs.get('shared-paths', [])
 
 def build_deployer(config):

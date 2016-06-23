@@ -25,7 +25,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Launcher for fumi."""
+"""Launcher for fumi.
+
+This parses the command line arguments and performs the different operations.
+"""
 
 __version__ = "0.3.0"
 
@@ -223,7 +226,7 @@ def init_parser():
     # deploy
     parser_deploy = subparsers.add_parser(
         'deploy',
-        help='deploy with given configuration')
+        help='deploy using given configuration')
 
     parser_deploy.add_argument(
         'configuration', nargs='?',

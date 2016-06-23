@@ -25,12 +25,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This file contains the implementation of the ``prepare`` "deployment"."""
+"""Implementation of the ``prepare`` "deployment".
 
-import datetime
-import os
-import scp
-import tarfile
+This is simply used to check connection configuration and create the remote
+directory tree structure.
+"""
 
 from fumi import util
 

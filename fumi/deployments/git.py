@@ -25,7 +25,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This file contains the implementation of the ``git`` deployment."""
+"""Implementation of the ``git`` based deployment.
+
+This uses git in the remote host to obtain the files to deploy from a remote
+repository.
+"""
 
 import datetime
 import os

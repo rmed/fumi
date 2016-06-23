@@ -25,7 +25,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This file contains the implementation of the ``local`` deployment."""
+"""Implementation of the ``local`` based deployment.
+
+This compresses the files to deploy and uploads them to the remote host.
+"""
 
 import datetime
 import os

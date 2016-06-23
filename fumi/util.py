@@ -25,7 +25,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Utility code for fumi."""
+"""Utility code for fumi.
+
+These are common functions used in different deployments.
+"""
 
 from __future__ import print_function
 
