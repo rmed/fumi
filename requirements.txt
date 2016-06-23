@@ -1,4 +1,5 @@
-paramiko==1.15.2
-scp==0.10.2
-pyyaml==3.11
 blessings==1.6
+paramiko==2.0.1
+pyyaml==3.11
+scp==0.10.2
+six==1.10.0

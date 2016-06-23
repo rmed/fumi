@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 - unreleased
+
+### Added
+- Optional configuration fields: `buffer-size` and `shared-paths`
+- `prepare` command to test connection and create remote directory tree
+
+### Changed
+- Documentation was rewritten using Sphinx
+- Major code refactoring
+
+
 ## 0.3.0 - Sep 22nd, 2015
 
 ### Added

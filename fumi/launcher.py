@@ -30,7 +30,7 @@
 This parses the command line arguments and performs the different operations.
 """
 
-__version__ = "0.3.0"
+__version__ = '0.4.0'
 
 import argparse
 import os
