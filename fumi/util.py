@@ -477,12 +477,12 @@ def run_commands(ssh, commands, remote_path=None):
             subprocess.Popen(to_run, shell=True).wait()
 
         elif command_type == 'remote':
+            cprint('Running remote command: %s' % to_run, 'magenta')
+
             if remote_path:
                 # Only for post-deployment commands
                 pushd = 'pushd %s > /dev/null 2>&1' % remote_path
                 to_run = '%s; %s; %s' % (pushd, to_run, popd)
-
-            cprint('Running remote command: %s' % to_run, 'magenta')
 
             stdin, stdout, stderr = ssh.exec_command(to_run)
 

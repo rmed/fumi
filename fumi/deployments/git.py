@@ -100,6 +100,10 @@ def deploy(deployer):
         return False
 
 
+    # Link shared paths
+    util.symlink_shared(ssh, deployer)
+
+
     # Run post-deployment commands
     status = util.run_commands(
         ssh,
@@ -109,10 +113,6 @@ def deploy(deployer):
     if not status:
         util.rollback(ssh, deployer, timestamp, 3)
         return False
-
-
-    # Link shared paths
-    util.symlink_shared(ssh, deployer)
 
 
     # Clean revisions
