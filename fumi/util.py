@@ -46,7 +46,39 @@ COLOR_TERM = blessings.Terminal()
 def check_dirs(ssh, deployer):
     """Check if all the necessary directories exist in the remote host.
 
-    This function will also try to create the directories if needed.
+    Arguments:
+        ssh: Established SSH connection instance.
+        deployer (``Deployer``): Deployer instance.
+
+    Returns:
+        Boolean indicating result.
+    """
+    # Remote temporary
+    if not dir_exists(ssh, deployer.host_tmp):
+        cprint('Remote temporary directory does not exist', 'red')
+        return False
+
+    # Deployment path
+    if not dir_exists(ssh, deployer.deploy_path):
+        cprint('Remote deployment directory does not exist', 'red')
+        return False
+
+    # Revisions
+    rev = os.path.join(deployer.deploy_path, 'rev')
+    if not dir_exists(ssh, rev):
+        cprint('Remote revisions directory does not exist', 'red')
+        return False
+
+    # Shared files
+    shared = os.path.join(deployer.deploy_path, 'shared')
+    if not dir_exists(ssh, shared):
+        cprint('Remote shared directory does not exist', 'red')
+        return False
+
+    return True
+
+def create_dirs(ssh, deployer):
+    """Create remote directories.
 
     Arguments:
         ssh: Established SSH connection instance.
@@ -56,29 +88,24 @@ def check_dirs(ssh, deployer):
         Boolean indicating result.
     """
     # Remote temporary
-    if deployer.host_tmp:
-        if not dir_exists(ssh, deployer.host_tmp) and \
-                not create_tree(ssh, deployer.host_tmp):
-
-            cprint('Cannot create remote temporary directory', 'red')
-            return False
+    if deployer.host_tmp != '/tmp' and not create_tree(ssh, deployer.host_tmp):
+        cprint('Cannot create remote temporary directory', 'red')
+        return False
 
     # Deployment path
-    if not dir_exists(ssh, deployer.deploy_path) and \
-            not create_tree(ssh, deployer.deploy_path):
-
+    if not create_tree(ssh, deployer.deploy_path):
         cprint('Cannot create remote deployment directory', 'red')
         return False
 
     # Revisions
     rev = os.path.join(deployer.deploy_path, 'rev')
-    if not dir_exists(ssh, rev) and not create_tree(ssh, rev):
+    if not create_tree(ssh, rev):
         cprint('Cannot create remote revisions directory', 'red')
         return False
 
     # Shared files
     shared = os.path.join(deployer.deploy_path, 'shared')
-    if not dir_exists(ssh, shared) and not create_tree(ssh, shared):
+    if not create_tree(ssh, shared):
         cprint('Cannot create remote shared directory', 'red')
         return False
 

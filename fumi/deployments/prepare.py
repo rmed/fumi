@@ -49,16 +49,18 @@ def prepare(deployer):
 
     status, ssh = util.connect(deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Connected!\n', 'green')
 
 
     # Directory structures
-    util.cprint('> Checking remote directory structures...', 'cyan')
+    util.cprint('> Creating remote directory tree...', 'cyan')
 
-    status = util.check_dirs(ssh, deployer)
+    status = util.create_dirs(ssh, deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Correct!\n', 'green')

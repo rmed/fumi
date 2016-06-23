@@ -52,6 +52,7 @@ def deploy(deployer):
 
     status, ssh = util.connect(deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Connected!\n', 'green')
@@ -60,23 +61,27 @@ def deploy(deployer):
     # Predeployment commands
     status, util.run_commands(ssh, deployer.predep)
     if not status:
+        ssh.close()
         return False
 
 
     # Directory structures
-    util.cprint('> Checking remote directory structures...', 'cyan')
+    util.cprint('> Checking remote directories...', 'cyan')
 
     status = util.check_dirs(ssh, deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Correct!\n', 'green')
 
 
     # Clone source
+    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    util.cprint('Preparing revision %s' % timestamp, 'white')
+
     util.cprint('> Cloning repository...', 'cyan')
 
-    timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
     rev_path = os.path.join(deployer.deploy_path, 'rev')
     current_rev = os.path.join(deployer.deploy_path, 'rev', timestamp)
 
@@ -87,6 +92,7 @@ def deploy(deployer):
 
     if status == 127:
         util.cprint('git command not found in remote server')
+        ssh.close()
         return False
     # TODO: check git exit codes
 
@@ -97,6 +103,7 @@ def deploy(deployer):
     status = util.symlink(ssh, deployer, rev_path, timestamp)
     if not status:
         util.rollback(ssh, deployer, timestamp, 3)
+        ssh.close()
         return False
 
 
@@ -112,6 +119,7 @@ def deploy(deployer):
 
     if not status:
         util.rollback(ssh, deployer, timestamp, 3)
+        ssh.close()
         return False
 
 

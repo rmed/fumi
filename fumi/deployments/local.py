@@ -53,6 +53,7 @@ def deploy(deployer):
 
     status, ssh = util.connect(deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Connected!\n', 'green')
@@ -61,14 +62,16 @@ def deploy(deployer):
     # Predeployment commands
     status, util.run_commands(ssh, deployer.predep)
     if not status:
+        ssh.close()
         return False
 
 
     # Directory structures
-    util.cprint('> Checking remote directory structures...', 'cyan')
+    util.cprint('> Checking remote directories...', 'cyan')
 
     status = util.check_dirs(ssh, deployer)
     if not status:
+        ssh.close()
         return False
 
     util.cprint('Correct!\n', 'green')
@@ -76,6 +79,8 @@ def deploy(deployer):
 
     # Compress source to temporary directory
     timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    util.cprint('Preparing revision %s' % timestamp, 'white')
+
     compressed_file = timestamp + '.tar.gz'
     tmp_local = os.path.join('/tmp', compressed_file)
 
@@ -115,6 +120,7 @@ def deploy(deployer):
         # Failed to initiate SCP
         util.cprint('Failed to initiate SCP, check configuration', 'red')
         status = util.rollback(ssh, deployer, timestamp, 1)
+        ssh.close()
         return False
 
     uload_tmp = deployer.host_tmp or '/tmp'
@@ -126,6 +132,7 @@ def deploy(deployer):
     except scp.SCPException as e:
         util.cprint('Error uploading to server: %s\n' % e, 'red')
         status = util.rollback(ssh, deployer, timestamp, 3)
+        ssh.close()
         return False
 
     util.cprint('Done!\n', 'green')
@@ -144,6 +151,7 @@ def deploy(deployer):
         util.cprint('Error: tar command not found in remote host\n', 'red')
 
         status = util.rollback(ssh, deployer, timestamp, 1)
+        ssh.close()
         return False
 
     elif status == 1:
@@ -151,6 +159,7 @@ def deploy(deployer):
         util.cprint(*stderr.readlines())
 
         status = util.rollback(ssh, deployer, timestamp, 2)
+        ssh.close()
         return False
 
     elif status == 2:
@@ -158,6 +167,7 @@ def deploy(deployer):
         util.cprint(*stderr.readlines())
 
         status = util.rollback(ssh, deployer, timestamp, 2)
+        ssh.close()
         return False
 
     util.cprint('Done!\n', 'green')
@@ -167,6 +177,7 @@ def deploy(deployer):
     status = util.symlink(ssh, deployer, rev_path, timestamp)
     if not status:
         util.rollback(ssh, deployer, timestamp, 3)
+        ssh.close()
         return False
 
 
@@ -182,6 +193,7 @@ def deploy(deployer):
 
     if not status:
         util.rollback(ssh, deployer, timestamp, 3)
+        ssh.close()
         return False
 
 
