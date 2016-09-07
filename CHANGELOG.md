@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 - unreleased
+## 0.4.0 - Sep 7th, 2016
 
 ### Added
 - Optional configuration fields: `buffer-size` and `shared-paths`
