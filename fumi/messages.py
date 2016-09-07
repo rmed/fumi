@@ -61,7 +61,7 @@ CORRECT = _('Correct!')
 CREATED_BLANK = _('Created blank configuration: %s')
 
 DEP_COMPLETE = _('Deployment complete!')
-DEP_CHECK_REMOTE = _('Checking remtoe directories...')
+DEP_CHECK_REMOTE = _('Checking remote directories...')
 DEP_CONNECTED = _('Connected!')
 DEP_CONNECTING = _('Connecting to %s as %s...')
 DEP_CREATEDIR = _('Creating remote directory tree...')

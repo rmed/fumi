@@ -5,6 +5,7 @@
 ### Added
 - Optional configuration fields: `buffer-size` and `shared-paths`
 - `prepare` command to test connection and create remote directory tree
+- Localization of application
 
 ### Changed
 - Documentation was rewritten using Sphinx

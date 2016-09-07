@@ -30,8 +30,8 @@
 import gettext
 import types
 
-from fumi import deployments
 from fumi import messages as m
+from fumi import deployments
 from fumi.util import cprint
 
 

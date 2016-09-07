@@ -5,19 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 0.4.0\n"
+"Project-Id-Version:  0.4.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-09-07 20:52+0200\n"
-"PO-Revision-Date: 2016-09-07 20:56+0200\n"
+"POT-Creation-Date: 2016-09-07 21:46+0200\n"
+"PO-Revision-Date: 2016-09-07 21:44+0200\n"
 "Last-Translator: Rafael Medina García <rafamedgar@gmail.com>\n"
 "Language: es\n"
 "Language-Team: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"X-Generator: Poedit 1.8.8\n"
 
 #: fumi/messages.py:32
 msgid "Command execution"
@@ -107,9 +106,8 @@ msgid "Deployment complete!"
 msgstr "¡Despliegue completado!"
 
 #: fumi/messages.py:64
-#, fuzzy
-msgid "Checking remtoe directories..."
-msgstr "Enlazando directorio..."
+msgid "Checking remote directories..."
+msgstr "Comprobando directorios remotos"
 
 #: fumi/messages.py:65
 msgid "Connected!"
@@ -121,18 +119,16 @@ msgid "Connecting to %s as %s..."
 msgstr "Conectando a %s como usuario %s..."
 
 #: fumi/messages.py:67
-#, fuzzy
 msgid "Creating remote directory tree..."
-msgstr "No se puede crear el directorio remoto compartido"
+msgstr "Creando árbol de directorios remoto..."
 
 #: fumi/messages.py:68
 msgid "Performing a \"git\" deployment"
 msgstr "Realizando un despliegue \"git\""
 
 #: fumi/messages.py:69
-#, fuzzy
 msgid "Cloning repository..."
-msgstr "Enlazando directorio..."
+msgstr "Clonando repositorio..."
 
 #: fumi/messages.py:70
 msgid "git command not found in remote server"
@@ -143,9 +139,8 @@ msgid "Performing a \"local\"deployment"
 msgstr "Realizando un despliegue \"local\""
 
 #: fumi/messages.py:72
-#, fuzzy
 msgid "Cleaning temporary files..."
-msgstr "Enlazando archivos compartidos..."
+msgstr "Limpiando archivos temporales..."
 
 #: fumi/messages.py:73
 #, python-format
@@ -165,23 +160,22 @@ msgid "Fatal error when extracting remote file"
 msgstr "Error fatal mientras se extraía el archivo remoto"
 
 #: fumi/messages.py:77
-#, fuzzy, python-format
+#, python-format
 msgid "Path \"%s\" does not exist, ignoring"
-msgstr "La ruta \"%s\" no existe"
+msgstr "La ruta \"%s\" no existe, se ignorará"
 
 #: fumi/messages.py:78
 msgid "Failed to initiate SCP, check configuration"
 msgstr "Fallo al iniciar SCP, compruebe la configuración"
 
 #: fumi/messages.py:79
-#, fuzzy, python-format
 msgid "Uncompressing remote file..."
-msgstr "Eliminando archivo remoto %s ..."
+msgstr "Descomprimiendo archivo remoto..."
 
 #: fumi/messages.py:80
-#, fuzzy, python-format
+#, python-format
 msgid "Uploading %s..."
-msgstr "Eliminando %s ..."
+msgstr "Subiendo archivo %s ..."
 
 #: fumi/messages.py:81
 #, python-format
@@ -198,9 +192,9 @@ msgid "Preparation complete!"
 msgstr "¡Preparación completada!"
 
 #: fumi/messages.py:84
-#, fuzzy, python-format
+#, python-format
 msgid "Preparing revision %s"
-msgstr "Eliminando revision %s"
+msgstr "Preparando revisión %s"
 
 #: fumi/messages.py:85
 msgid "Make sure to upload shared files before deploying"
@@ -333,7 +327,7 @@ msgstr "El directorio remoto temporal no existe"
 
 #: fumi/messages.py:126
 msgid "Checking old revisions..."
-msgstr "Comprovando revisiones antiguas..."
+msgstr "Comprobando revisiones antiguas..."
 
 #: fumi/messages.py:127
 #, python-format
@@ -409,3 +403,4 @@ msgstr "Error en el archivo de despliegue: %s"
 #, python-format
 msgid "Error writing yaml to deployment file: %s"
 msgstr "Error escribiendo yaml al archivo de despliegue: %s"
+

@@ -67,7 +67,7 @@ setup(
     packages=find_packages(),
 
     package_data = {
-        '': ['*.mo']
+        'fumi': ['locale/*/LC_MESSAGES/*.mo']
     },
 
     exclude_package_data = {
@@ -83,8 +83,8 @@ setup(
 
     install_requires=[
         'blessings==1.6',
-        'paramiko==2.0.1',
-        'pyyaml==3.11',
+        'paramiko==2.0.2',
+        'pyyaml==3.12',
         'scp==0.10.2',
         'six==1.10.0'
     ],

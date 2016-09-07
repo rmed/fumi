@@ -235,7 +235,12 @@ def init_parser():
 
     # deploy
     parser_deploy = subparsers.add_parser('deploy', help=m.FUMI_DEPLOY_DESC)
-    parser_deploy.add_argument(m.FUMI_CONF, nargs='?',help=m.FUMI_CONF_DESC)
+    parser_deploy.add_argument(
+        'configuration',
+        nargs='?',
+        metavar=m.FUMI_CONF,
+        help=m.FUMI_CONF_DESC
+    )
 
 
     # list
@@ -244,17 +249,30 @@ def init_parser():
 
     # new
     parser_new = subparsers.add_parser('new', help=m.FUMI_NEW_DESC)
-    parser_new.add_argument(m.FUMI_NAME, help=m.FUMI_NAME_DESC)
+    parser_new.add_argument(
+        'name',
+        metavar=m.FUMI_NAME,
+        help=m.FUMI_NAME_DESC
+    )
 
 
     # prepare
     parser_prepare = subparsers.add_parser('prepare', help=m.FUMI_PREP_DESC)
-    parser_prepare.add_argument(m.FUMI_CONF ,nargs='?', help=m.FUMI_CONF_DESC)
+    parser_prepare.add_argument(
+        'configuration',
+        nargs='?',
+        metavar=m.FUMI_CONF,
+        help=m.FUMI_CONF_DESC
+    )
 
 
     # remove
     parser_remove = subparsers.add_parser('remove', help=m.FUMI_RM_DESC)
-    parser_remove.add_argument(m.FUMI_NAME, help=m.FUMI_NAME_DESC)
+    parser_remove.add_argument(
+        'name',
+        metavar=m.FUMI_NAME,
+        help=m.FUMI_NAME_DESC
+    )
 
     return parser
 
