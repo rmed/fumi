@@ -3,5 +3,6 @@ include requirements.txt
 include docs/Makefile
 include docs/make.bat
 include fumi/locale/fumi.pot
+recursive-exclude fumi/locale *.mo
 recursive-include fumi/locale *.po
 recursive-include docs/source *
