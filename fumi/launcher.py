@@ -32,11 +32,23 @@ This parses the command line arguments and performs the different operations.
 
 __version__ = '0.4.0'
 
+# Set locale
+from pkg_resources import resource_filename
+import six
+import gettext
+
+_locale_dir = resource_filename(__name__, 'locale')
+if six.PY3:
+    gettext.install('fumi', _locale_dir)
+else:
+    gettext.install('fumi', _locale_dir, unicode=True)
+
+
 import argparse
 import os
-import six
 import sys
 
+from fumi import messages as m
 from fumi import util
 from fumi.deployer import build_deployer
 
@@ -59,7 +71,7 @@ def deploy(conf_name, prepare=False):
         sys.exit(-1)
 
     if not content:
-        util.cprint('There is no fumi.yml file', 'red')
+        util.cprint(m.NO_YML, 'red')
         sys.exit(-1)
 
     if not conf_name:
@@ -70,23 +82,22 @@ def deploy(conf_name, prepare=False):
             if content[k].get('default'):
                 # Found default configuration
                 default = k
-                util.cprint('Using default configuration: %s' % default)
+                util.cprint(m.USE_DEFAULT_CONF % default)
                 break
 
         if not default:
             # Default not found
             if len(content.keys()) == 0:
-                util.cprint('There are no configurations available', 'red')
+                util.cprint(m.NO_CONFS, 'red')
                 sys.exit(-1)
 
             # Ask for default
-            util.cprint('I found the following configurations:')
+            util.cprint(m.CONFS_FOUND)
 
             for k in content.keys():
                 util.cprint('- %s' % k)
 
-            default = six.moves.input(
-                "Which one do you want to set as default?: ")
+            default = six.moves.input(m.CONF_SET_DEF)
 
             if default in content.keys():
                 content[default]['default'] = True
@@ -94,13 +105,13 @@ def deploy(conf_name, prepare=False):
 
             else:
                 # Welp...
-                util.cprint('That configuration does not exist!', 'red')
+                util.cprint(m.CONF_NOT_FOUND, 'red')
                 sys.exit(-1)
 
         conf_name = default
 
     elif conf_name not in content.keys():
-        util.cprint('Configuration "%s" does not exist' % conf_name, 'red')
+        util.cprint(m.CONF_NAME_NOT_FOUND % conf_name, 'red')
         sys.exit(-1)
 
     # Build deployer
@@ -129,14 +140,14 @@ def list_configs():
         sys.exit(-1)
 
     if not content:
-        util.cprint('There is no fumi.yml file', 'red')
+        util.cprint(m.NO_YML, 'red')
         sys.exit(-1)
 
     for conf in content.keys():
         is_default = content[conf].get('default', False)
 
         if is_default:
-            util.cprint('- %s (default)' % conf)
+            util.cprint(m.LIST_DEFAULT % conf)
 
         else:
             util.cprint('- %s' % conf)
@@ -159,7 +170,7 @@ def new_config(name):
 
     if name in content.keys():
         # Do not overwrite configuration
-        util.cprint('Configuration "%s" already exists' % name, 'red')
+        util.cprint(m.CONF_EXISTS % name, 'red')
         sys.exit(-1)
 
     content[name] = {
@@ -180,7 +191,7 @@ def new_config(name):
     if not status:
         sys.exit(-1)
 
-    util.cprint('Created new blank configuration: %s' % name)
+    util.cprint(m.CREATED_BLANK % name)
 
 
 def remove_config(name):
@@ -195,11 +206,11 @@ def remove_config(name):
         sys.exit(-1)
 
     if not content:
-        util.cprint('There is no fumi.yml file', 'red')
+        util.cprint(m.NO_YML, 'red')
         sys.exit(-1)
 
     if name not in content.keys():
-        util.cprint('Configuration "%s" does not exist' % name, 'red')
+        util.cprint(m.CONF_NAME_NOT_FOUND % name, 'red')
         sys.exit(-1)
 
     # Remove section
@@ -209,61 +220,41 @@ def remove_config(name):
     if not status:
         sys.exit(-1)
 
-    util.cprint('Removed configuration: "%s"' % name, 'green')
+    util.cprint(m.CONF_REMOVED % name, 'green')
 
 
 def init_parser():
     """ Initialize the arguments parser. """
-    parser = argparse.ArgumentParser(
-        description='Simple deployment tool')
+    parser = argparse.ArgumentParser(description=m.FUMI_DESC)
 
     parser.add_argument('--version', action='version',
         version='%(prog)s ' + __version__)
 
-    subparsers = parser.add_subparsers(title='commands')
+    subparsers = parser.add_subparsers(title=m.FUMI_CMDS)
 
 
     # deploy
-    parser_deploy = subparsers.add_parser(
-        'deploy',
-        help='deploy using given configuration')
-
-    parser_deploy.add_argument(
-        'configuration', nargs='?',
-        help='configuration to use')
+    parser_deploy = subparsers.add_parser('deploy', help=m.FUMI_DEPLOY_DESC)
+    parser_deploy.add_argument(m.FUMI_CONF, nargs='?',help=m.FUMI_CONF_DESC)
 
 
     # list
-    parser_list = subparsers.add_parser(
-        'list',
-        help='list all the available deployment configurations')
+    parser_list = subparsers.add_parser('list', help=m.FUMI_LIST_DESC)
 
 
     # new
-    parser_new = subparsers.add_parser(
-        'new',
-        help='create new deployment configuration')
-
-    parser_new.add_argument('name', help='name for the new configuration')
+    parser_new = subparsers.add_parser('new', help=m.FUMI_NEW_DESC)
+    parser_new.add_argument(m.FUMI_NAME, help=m.FUMI_NAME_DESC)
 
 
     # prepare
-    parser_prepare = subparsers.add_parser(
-        'prepare',
-        help='test connection and prepare remote directories')
-
-    parser_prepare.add_argument(
-        'configuration',
-        nargs='?',
-        help='configuration to use')
+    parser_prepare = subparsers.add_parser('prepare', help=m.FUMI_PREP_DESC)
+    parser_prepare.add_argument(m.FUMI_CONF ,nargs='?', help=m.FUMI_CONF_DESC)
 
 
     # remove
-    parser_remove = subparsers.add_parser(
-        'remove',
-        help='remove a configuration from the deployment file')
-
-    parser_remove.add_argument('name', help='name of the configuration')
+    parser_remove = subparsers.add_parser('remove', help=m.FUMI_RM_DESC)
+    parser_remove.add_argument(m.FUMI_NAME, help=m.FUMI_NAME_DESC)
 
     return parser
 
@@ -285,7 +276,7 @@ def parse_action(action, parsed):
         remove_config(parsed.name)
 
     else:
-        util.cprint('Unknown action')
+        util.cprint(m.FUMI_UNKNOWN)
 
 def main():
     """Entrypoint for the program."""

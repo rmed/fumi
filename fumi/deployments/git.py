@@ -34,6 +34,7 @@ repository.
 import datetime
 import os
 
+from fumi import messages as m
 from fumi import util
 
 
@@ -47,15 +48,17 @@ def deploy(deployer):
         Boolean indicating result of the deployment.
     """
     # SSH connection
-    util.cprint('> Connecting to %s as %s...' % (
-        deployer.host, deployer.user), 'cyan')
+    util.cprint(
+        '> ' + m.DEP_CONNECTING % (deployer.host, deployer.user),
+        'cyan'
+    )
 
     status, ssh = util.connect(deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Connected!\n', 'green')
+    util.cprint(m.DEP_CONNECTED + '\n', 'green')
 
 
     # Predeployment commands
@@ -66,21 +69,21 @@ def deploy(deployer):
 
 
     # Directory structures
-    util.cprint('> Checking remote directories...', 'cyan')
+    util.cprint('> ' + m.DEP_CHECK_REMOTE, 'cyan')
 
     status = util.check_dirs(ssh, deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Correct!\n', 'green')
+    util.cprint(m.CORRECT + '\n', 'green')
 
 
     # Clone source
     timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-    util.cprint('Preparing revision %s' % timestamp, 'white')
+    util.cprint(m.DEP_PREPARE_REV % timestamp, 'white')
 
-    util.cprint('> Cloning repository...', 'cyan')
+    util.cprint('> ' + m.DEP_GIT_CLONE, 'cyan')
 
     rev_path = os.path.join(deployer.deploy_path, 'rev')
     current_rev = os.path.join(deployer.deploy_path, 'rev', timestamp)
@@ -91,12 +94,12 @@ def deploy(deployer):
     status = stdout.channel.recv_exit_status()
 
     if status == 127:
-        util.cprint('git command not found in remote server')
+        util.cprint(m.DEP_MISSING_PARAM)
         ssh.close()
         return False
     # TODO: check git exit codes
 
-    util.cprint('Done!\n', 'green')
+    util.cprint(m.DONE + '\n', 'green')
 
 
     # Link directory
@@ -128,7 +131,7 @@ def deploy(deployer):
         status = util.clean_revisions(ssh, deployer.keep_max, rev_path)
 
 
-    util.cprint('Deployment complete!', 'green')
+    util.cprint(m.DEP_COMPLETE, 'green')
 
     # Close SSH connection
     ssh.close()

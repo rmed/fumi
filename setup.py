@@ -25,6 +25,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from babel.messages import frontend as babel
 from setuptools import setup, find_packages
 from os import path
 
@@ -64,6 +65,21 @@ setup(
     keywords='fumi deploy git remote ssh',
 
     packages=find_packages(),
+
+    package_data = {
+        '': ['*.mo']
+    },
+
+    exclude_package_data = {
+        '': ['*.po', '*.pot']
+    },
+
+    cmdclass = {
+        'compile_catalog': babel.compile_catalog,
+        'extract_messages': babel.extract_messages,
+        'init_catalog': babel.init_catalog,
+        'update_catalog': babel.update_catalog
+    },
 
     install_requires=[
         'blessings==1.6',

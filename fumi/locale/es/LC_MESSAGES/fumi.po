@@ -1,0 +1,411 @@
+# Spanish translations for .
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the  project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.4.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-09-07 20:52+0200\n"
+"PO-Revision-Date: 2016-09-07 20:56+0200\n"
+"Last-Translator: Rafael Medina García <rafamedgar@gmail.com>\n"
+"Language: es\n"
+"Language-Team: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+"X-Generator: Poedit 1.8.8\n"
+
+#: fumi/messages.py:32
+msgid "Command execution"
+msgstr "Ejecución de comandos"
+
+#: fumi/messages.py:33
+#, python-format
+msgid "Running local command: %s"
+msgstr "Ejecutando comando local: %s"
+
+#: fumi/messages.py:34
+#, python-format
+msgid "Running remote command: %s"
+msgstr "Ejecutando comando remoto: %s"
+
+#: fumi/messages.py:35
+#, python-format
+msgid "Skipping unknown command type \"%s\""
+msgstr "Saltando tipo de comando desconocido \"%s\""
+
+#: fumi/messages.py:38
+#, python-format
+msgid "Configuration \"%s\" already exists"
+msgstr "La configuración \"%s\" ya existe"
+
+#: fumi/messages.py:40
+#, python-format
+msgid "Configuration \"%s\" does not exist"
+msgstr "La configuración \"%s\" no existe"
+
+#: fumi/messages.py:41
+msgid "That configuration does not exist!"
+msgstr "Esa configuración no existe!"
+
+#: fumi/messages.py:43
+#, python-format
+msgid "Removed configuration: %s"
+msgstr "Configuración eliminada: %s"
+
+#: fumi/messages.py:45
+msgid "Which one do you want to set as default?: "
+msgstr "¿Cuál quiere establecer como predeterminada?"
+
+#: fumi/messages.py:47
+msgid "I found the following configurations:"
+msgstr "He encontrado las siguientes configuraciones:"
+
+#: fumi/messages.py:49
+msgid "Authentication failed"
+msgstr "Fallo de autenticación"
+
+#: fumi/messages.py:50
+msgid "Could not connect, please check your credentials"
+msgstr "No se pudo conectar, por favor compruebe sus credenciales"
+
+#: fumi/messages.py:51
+msgid "Connection needs a password"
+msgstr "La conexión necesita una contraseña"
+
+#: fumi/messages.py:52
+msgid "Password needed to unlock private key file"
+msgstr "Se necesita contraseña para desbloquear el archivo de clave privada"
+
+#: fumi/messages.py:54
+msgid "Password: "
+msgstr "Contraseña: "
+
+#: fumi/messages.py:55
+msgid "Trying to connect using public key"
+msgstr "Intentando conectar usando clave pública"
+
+#: fumi/messages.py:56
+msgid "Trying to connect using provided password"
+msgstr "Intentando conectar usando contraseña"
+
+#: fumi/messages.py:58
+msgid "Correct!"
+msgstr "¡Correcto!"
+
+#: fumi/messages.py:61
+#, python-format
+msgid "Created blank configuration: %s"
+msgstr "Creada configuración en blanco: %s"
+
+#: fumi/messages.py:63
+msgid "Deployment complete!"
+msgstr "¡Despliegue completado!"
+
+#: fumi/messages.py:64
+#, fuzzy
+msgid "Checking remtoe directories..."
+msgstr "Enlazando directorio..."
+
+#: fumi/messages.py:65
+msgid "Connected!"
+msgstr "¡Conectado!"
+
+#: fumi/messages.py:66
+#, python-format
+msgid "Connecting to %s as %s..."
+msgstr "Conectando a %s como usuario %s..."
+
+#: fumi/messages.py:67
+#, fuzzy
+msgid "Creating remote directory tree..."
+msgstr "No se puede crear el directorio remoto compartido"
+
+#: fumi/messages.py:68
+msgid "Performing a \"git\" deployment"
+msgstr "Realizando un despliegue \"git\""
+
+#: fumi/messages.py:69
+#, fuzzy
+msgid "Cloning repository..."
+msgstr "Enlazando directorio..."
+
+#: fumi/messages.py:70
+msgid "git command not found in remote server"
+msgstr "El comando git no se ha encontrado en el host remoto"
+
+#: fumi/messages.py:71
+msgid "Performing a \"local\"deployment"
+msgstr "Realizando un despliegue \"local\""
+
+#: fumi/messages.py:72
+#, fuzzy
+msgid "Cleaning temporary files..."
+msgstr "Enlazando archivos compartidos..."
+
+#: fumi/messages.py:73
+#, python-format
+msgid "Compressing source to %s"
+msgstr "Comprimiendo fuente a %s"
+
+#: fumi/messages.py:74
+msgid "Error: some files differ"
+msgstr "Error: algunos archivos difieren"
+
+#: fumi/messages.py:75
+msgid "Error: tar command not found in remote host"
+msgstr "Error: el comando tar no se ha encontrado en el host remoto"
+
+#: fumi/messages.py:76
+msgid "Fatal error when extracting remote file"
+msgstr "Error fatal mientras se extraía el archivo remoto"
+
+#: fumi/messages.py:77
+#, fuzzy, python-format
+msgid "Path \"%s\" does not exist, ignoring"
+msgstr "La ruta \"%s\" no existe"
+
+#: fumi/messages.py:78
+msgid "Failed to initiate SCP, check configuration"
+msgstr "Fallo al iniciar SCP, compruebe la configuración"
+
+#: fumi/messages.py:79
+#, fuzzy, python-format
+msgid "Uncompressing remote file..."
+msgstr "Eliminando archivo remoto %s ..."
+
+#: fumi/messages.py:80
+#, fuzzy, python-format
+msgid "Uploading %s..."
+msgstr "Eliminando %s ..."
+
+#: fumi/messages.py:81
+#, python-format
+msgid "Error uploading to server: %s"
+msgstr "Error subiendo archivo al servidor: %s"
+
+#: fumi/messages.py:82
+#, python-format
+msgid "Missing required parameter: %s"
+msgstr "Falta parámetro necesario: %s"
+
+#: fumi/messages.py:83
+msgid "Preparation complete!"
+msgstr "¡Preparación completada!"
+
+#: fumi/messages.py:84
+#, fuzzy, python-format
+msgid "Preparing revision %s"
+msgstr "Eliminando revision %s"
+
+#: fumi/messages.py:85
+msgid "Make sure to upload shared files before deploying"
+msgstr "Asegúrese de de subir los archivos compartidos antes de desplegar"
+
+#: fumi/messages.py:86
+#, python-format
+msgid "Unknown deployment type: %s"
+msgstr "Tipo de despliegue desconocido: %s"
+
+#: fumi/messages.py:88
+msgid "Done!"
+msgstr "¡Hecho!"
+
+#: fumi/messages.py:91
+msgid "commands"
+msgstr "comandos"
+
+#: fumi/messages.py:92
+msgid "configuration"
+msgstr "configuración"
+
+#: fumi/messages.py:93
+msgid "configuration to use"
+msgstr "configuración a utilizar"
+
+#: fumi/messages.py:94
+msgid "deploy using given configuration"
+msgstr "desplegar usando la configuración dada"
+
+#: fumi/messages.py:95
+msgid "Simple deployment tool"
+msgstr "Herramienta de despliegue sencilla"
+
+#: fumi/messages.py:96
+msgid "list all the available deployment configurations"
+msgstr "mostrar todas las configuraciones de despliegue disponibles"
+
+#: fumi/messages.py:97
+msgid "name"
+msgstr "nombre"
+
+#: fumi/messages.py:98
+msgid "name for the new configuration"
+msgstr "nombre para la nueva configuración"
+
+#: fumi/messages.py:99
+msgid "create new deployment configuration"
+msgstr "crear una nueva configuración de despliegue"
+
+#: fumi/messages.py:100
+msgid "test connection and prepare remote directories"
+msgstr "comprobar la conexión y preparar directorios remotos"
+
+#: fumi/messages.py:101
+msgid "remove a configuration from the deployment file"
+msgstr "eliminar una configuración del archivo de despliegue"
+
+#: fumi/messages.py:103
+msgid "Unknown action"
+msgstr "Acción desconocida"
+
+#: fumi/messages.py:105
+msgid "Linking directory..."
+msgstr "Enlazando directorio..."
+
+#: fumi/messages.py:106
+msgid "Linking shared files..."
+msgstr "Enlazando archivos compartidos..."
+
+#: fumi/messages.py:107
+#, python-format
+msgid "Linking: %s"
+msgstr "Enlazando: %s"
+
+#: fumi/messages.py:110
+#, python-format
+msgid "- %s (default)"
+msgstr "- %s (predeterminada)"
+
+#: fumi/messages.py:111
+msgid "There are no configurations available"
+msgstr "No hay configuraciones disponibles"
+
+#: fumi/messages.py:112
+msgid "There is no fumi.yml file"
+msgstr "No hay archivo fumi.yml"
+
+#: fumi/messages.py:114
+#, python-format
+msgid "Path \"%s\" does not exist"
+msgstr "La ruta \"%s\" no existe"
+
+#: fumi/messages.py:116
+msgid "Cannot create remote deployment directory"
+msgstr "No se puede crear el directorio remoto de despliegue"
+
+#: fumi/messages.py:117
+msgid "Remote deployment directory does not exist"
+msgstr "El directorio remoto de despliegue no existe"
+
+#: fumi/messages.py:118
+#, python-format
+msgid "Remote file \"%s\" does not exist"
+msgstr "El archivo remoto \"%s\" no existe"
+
+#: fumi/messages.py:119
+msgid "Cannot create remote revisions directory"
+msgstr "No se puede crear el directorio remoto de revisiones"
+
+#: fumi/messages.py:120
+msgid "Remote revisions directory does not exist"
+msgstr "No existe el directorio remoto de revisiones"
+
+#: fumi/messages.py:121
+msgid "Cannot create remote shared directory"
+msgstr "No se puede crear el directorio remoto compartido"
+
+#: fumi/messages.py:122
+msgid "Remote shared directory does not exist"
+msgstr "El directorio remoto compartido no existe"
+
+#: fumi/messages.py:123
+msgid "Cannot create remote temporary directory"
+msgstr "No se puede crear el directorio remoto temporal"
+
+#: fumi/messages.py:124
+msgid "Remote temporary directory does not exist"
+msgstr "El directorio remoto temporal no existe"
+
+#: fumi/messages.py:126
+msgid "Checking old revisions..."
+msgstr "Comprovando revisiones antiguas..."
+
+#: fumi/messages.py:127
+#, python-format
+msgid "Linking previous revision (%s) ..."
+msgstr "Enlazando revisión anterior (%s) ..."
+
+#: fumi/messages.py:128
+msgid "Error obtaining list of revisions"
+msgstr "Error al obtener lista de revisiones"
+
+#: fumi/messages.py:129
+msgid "No previous revision to link"
+msgstr "No hay revision anterior que enlazar"
+
+#: fumi/messages.py:131
+#, python-format
+msgid "Removing revision %s"
+msgstr "Eliminando revision %s"
+
+#: fumi/messages.py:132
+#, python-format
+msgid "Removing remote revision %s ..."
+msgstr "Eliminando revision remota %s ..."
+
+#: fumi/messages.py:135
+#, python-format
+msgid "Could not remove \"%s\": %s"
+msgstr "No se pudo eliminar \"%s\": %s"
+
+#: fumi/messages.py:137
+msgid "Remote error, could not remove directory:"
+msgstr "Error remoto, no se pudo eliminar el directorio:"
+
+#: fumi/messages.py:139
+msgid "Remote error, could not remove file:"
+msgstr "Error remoto, no se pudo eliminar el archivo:"
+
+#: fumi/messages.py:141
+#, python-format
+msgid "Failed to remove file: %s"
+msgstr "Fallo al eliminar archivo: %s"
+
+#: fumi/messages.py:143
+#, python-format
+msgid "Removing %s ..."
+msgstr "Eliminando %s ..."
+
+#: fumi/messages.py:144
+#, python-format
+msgid "Removing remote file %s ..."
+msgstr "Eliminando archivo remoto %s ..."
+
+#: fumi/messages.py:146
+msgid "Beginning rollback..."
+msgstr "Comenzando rollback..."
+
+#: fumi/messages.py:149
+#, python-format
+msgid "Unexpected error: %s"
+msgstr "Error inesperado: %s"
+
+#: fumi/messages.py:152
+#, python-format
+msgid "Using default configuration: %s"
+msgstr "Usando configuración predeterminada: %s"
+
+#: fumi/messages.py:155
+#, python-format
+msgid "Error in deployment file: %s"
+msgstr "Error en el archivo de despliegue: %s"
+
+#: fumi/messages.py:157
+#, python-format
+msgid "Error writing yaml to deployment file: %s"
+msgstr "Error escribiendo yaml al archivo de despliegue: %s"

@@ -34,11 +34,14 @@ from __future__ import print_function
 
 import blessings
 import getpass
+import gettext
 import os
 import paramiko
 import shutil
 import subprocess
 import yaml
+
+from fumi import messages as m
 
 COLOR_TERM = blessings.Terminal()
 
@@ -55,24 +58,24 @@ def check_dirs(ssh, deployer):
     """
     # Remote temporary
     if not dir_exists(ssh, deployer.host_tmp):
-        cprint('Remote temporary directory does not exist', 'red')
+        cprint(m.REMOTE_TMP_NOEXIST, 'red')
         return False
 
     # Deployment path
     if not dir_exists(ssh, deployer.deploy_path):
-        cprint('Remote deployment directory does not exist', 'red')
+        cprint(m.REMOTE_DEP_NOEXIST, 'red')
         return False
 
     # Revisions
     rev = os.path.join(deployer.deploy_path, 'rev')
     if not dir_exists(ssh, rev):
-        cprint('Remote revisions directory does not exist', 'red')
+        cprint(m.REMOTE_REV_NOEXIST, 'red')
         return False
 
     # Shared files
     shared = os.path.join(deployer.deploy_path, 'shared')
     if not dir_exists(ssh, shared):
-        cprint('Remote shared directory does not exist', 'red')
+        cprint(m.REMOTE_SHR_NOEXIST, 'red')
         return False
 
     return True
@@ -89,24 +92,24 @@ def create_dirs(ssh, deployer):
     """
     # Remote temporary
     if deployer.host_tmp != '/tmp' and not create_tree(ssh, deployer.host_tmp):
-        cprint('Cannot create remote temporary directory', 'red')
+        cprint(m.REMOTE_TMP_CREATE_ERR, 'red')
         return False
 
     # Deployment path
     if not create_tree(ssh, deployer.deploy_path):
-        cprint('Cannot create remote deployment directory', 'red')
+        cprint(m.REMOTE_DEP_CREATE_ERR, 'red')
         return False
 
     # Revisions
     rev = os.path.join(deployer.deploy_path, 'rev')
     if not create_tree(ssh, rev):
-        cprint('Cannot create remote revisions directory', 'red')
+        cprint(m.REMOTE_REV_CREATE_ERR, 'red')
         return False
 
     # Shared files
     shared = os.path.join(deployer.deploy_path, 'shared')
     if not create_tree(ssh, shared):
-        cprint('Cannot create remote shared directory', 'red')
+        cprint(m.REMOTE_SHR_CREATE_ERR, 'red')
         return False
 
     return True
@@ -126,37 +129,37 @@ def connect(deployer):
     if not deployer.use_password:
         # Not using password, rely on public key authentication
         try:
-            cprint('Trying to connect using public key\n', 'magenta')
+            cprint(m.CONN_PUBKEY + '\n', 'magenta')
             ssh.connect(deployer.host, username=deployer.user)
 
         except paramiko.ssh_exception.AuthenticationException:
-            cprint('Authentication failed', 'red')
+            cprint(m.CONN_AUTH_FAIL, 'red')
             return False, None
 
         except paramiko.ssh_exception.PasswordRequiredException:
-            cprint('Password needed to unlock private key file', 'red')
+            cprint(m.CONN_KEYPASS, 'red')
             return False, None
 
         except Exception as e:
             # Unknown exception
-            cprint('Unexpected error: %s' % e, 'red')
+            cprint(m.UNEXPECTED_ERR % e, 'red')
             return False, None
 
     elif deployer.use_password and not deployer.password:
         # Using password but not supplied in the yml file, ask for it
-        cprint('Connection requires a password\n', 'magenta')
-        pwd = getpass.getpass("Password: ")
+        cprint(m.CONN_NEEDPASS + '\n', 'magenta')
+        pwd = getpass.getpass(m.CONN_PASS)
 
         try:
             ssh.connect(deployer.host, username=deployer.user, password=pwd)
 
         except:
-            cprint('Could not connect, please check your credentials', 'red')
+            cprint(m.CONN_FAIL, 'red')
             return False, None
 
     elif deployer.use_password and deployer.password:
         # Using password supplied in the yml file
-        cprint('Trying to connect using provided password\n', 'magenta')
+        cprint(m.CONN_TRYPASS + '\n' , 'magenta')
 
         try:
             ssh.connect(
@@ -165,7 +168,7 @@ def connect(deployer):
                 password=deployer.password)
 
         except:
-            cprint('Could not connect, please check your credentials', 'red')
+            cprint(m.CONN_FAIL, 'red')
             return False, None
 
     return True, ssh
@@ -183,13 +186,13 @@ def clean_revisions(ssh, keep_max, rev_path):
     Returns:
         Boolean indicating result.
     """
-    cprint('> Checking old revisions...', 'cyan')
+    cprint('> ' + m.REV_CHECK, 'cyan')
 
     stdin, stdout, stderr = ssh.exec_command('ls %s' % rev_path)
     status = stdout.channel.recv_exit_status()
 
     if status == 1 or status == 2:
-        cprint('Error obtaining list of revisions', 'red')
+        cprint(m.REV_LIST_ERR, 'red')
         cprint(*stderr.readlines())
         return False
 
@@ -202,11 +205,11 @@ def clean_revisions(ssh, keep_max, rev_path):
             old_revisions.append(revisions.pop(0))
 
         for r in old_revisions:
-            cprint('Removing revision %s' % r.strip(), 'magenta')
+            cprint(m.REV_RM % r.strip(), 'magenta')
             rm_old = 'rm -rf %s' % os.path.join(rev_path, r.strip())
             stdin, stdout, stderr = ssh.exec_command(rm_old)
 
-    cprint('Done!\n', 'green')
+    cprint(m.DONE +'\n', 'green')
     return True
 
 def create_tree(ssh, path):
@@ -295,7 +298,7 @@ def read_yaml(path):
                 content = yaml.load(fumi_yml)
 
             except yaml.YAMLError as e:
-                cprint('Error in deployment file: %s' % e, 'red')
+                cprint(m.YML_ERR % e, 'red')
                 return False, None
 
         return True, content
@@ -321,7 +324,7 @@ def remove_local(path):
 
     else:
         # What?
-        cprint('Path "%s" does not exist' % path, 'red')
+        cprint(m.PATH_NOEXIST % path, 'red')
         return False
 
     try:
@@ -329,7 +332,7 @@ def remove_local(path):
 
     except Exception as e:
         # Something failed
-        cprint('Could not remove "%s": %s' % (path, e), 'red')
+        cprint(m.RM_ERR % (path, e), 'red')
         return False
 
     return True
@@ -369,7 +372,7 @@ def rollback(ssh, deployer, timestamp, level):
     Returns:
         Boolean indicating result of the rollback.
     """
-    cprint('> Beginning rollback...', 'cyan')
+    cprint('> ' + m.ROLLBACK_BEGIN, 'cyan')
 
     # Relevant names
     comp_file = timestamp + '.tar.gz'
@@ -380,14 +383,14 @@ def rollback(ssh, deployer, timestamp, level):
         local_file = os.path.join('/tmp', comp_file)
 
         if os.path.isfile(local_file):
-            cprint('Removing %s ...' % local_file, 'magenta')
+            cprint(m.RM_MSG_LOCAL % local_file, 'magenta')
 
             try:
                 os.remove(local_file)
 
             except:
                 # Do not exit because of local file error, simply ignore
-                cprint('Failed to remove file: %s' % local_file, 'red')
+                cprint(m.RM_FAIL % local_file, 'red')
                 pass
 
     if level >= 2:
@@ -403,7 +406,7 @@ def rollback(ssh, deployer, timestamp, level):
 
         if result:
             # File exists
-            cprint('Removing remote file %s ...' % remote_file, 'magenta')
+            cprint(m.RM_MSG_REMOTE % remote_file, 'magenta')
 
             stdin, stdout, stderr = ssh.exec_command(
                 'rm %s' % remote_file)
@@ -412,12 +415,12 @@ def rollback(ssh, deployer, timestamp, level):
 
             if status < 0:
                 # Could not remove it?
-                cprint('Remote error, could not remove file:', 'red')
+                cprint(m.RM_ERR_REMOTEF, 'red')
                 cprint(*stderr.readlines())
 
         else:
             # File does not exist
-            cprint('Remote file "%s" does not exist' % remote_file, 'white')
+            cprint(m.REMOTE_FILE_NOEXIST % remote_file, 'white')
 
     if level >= 3:
         # Remove revision
@@ -428,7 +431,7 @@ def rollback(ssh, deployer, timestamp, level):
 
         if result:
             # Directory exists
-            cprint('Removing remote revision %s ...' % timestamp, 'magenta')
+            cprint(m.REV_RM_REMOTE % timestamp, 'magenta')
 
             stdin, stdout, stderr = ssh.exec_command(
                 'rm -rf %s' % os.path.join(rev_path, timestamp))
@@ -436,12 +439,12 @@ def rollback(ssh, deployer, timestamp, level):
             status = stdout.channel.recv_exit_status()
 
             if status < 0:
-                cprint('Remote error, could not remove directory:', 'red')
+                cprint(m.RM_ERR_REMOTED, 'red')
                 cprint(*stderr.readlines())
 
         else:
             # File does not exist
-            cprint('Remote revision directory does not exist', 'white')
+            cprint(m.REMOTE_REV_NOEXIST, 'white')
 
     if level >= 4:
         # Link previous version
@@ -454,7 +457,7 @@ def rollback(ssh, deployer, timestamp, level):
             revs.remove(timestamp)
 
         if len(revs) > 0:
-            cprint('Linking previous revision %s ...' % revs[-1], 'magenta')
+            cprint(m.REV_LINK_PREV % revs[-1], 'magenta')
 
             link_path = os.path.join(deployer.deploy_path, 'current')
             previous_rev = os.path.join(deployer.deploy_path, 'rev', revs[-1])
@@ -465,9 +468,9 @@ def rollback(ssh, deployer, timestamp, level):
 
         else:
             # No more revisions
-            cprint('No previous revision to link', 'white')
+            cprint(m.REV_PREV_MISSING, 'white')
 
-    cprint('Done!', 'green')
+    cprint(m.DONE, 'green')
     return True
 
 def run_commands(ssh, commands, remote_path=None):
@@ -490,7 +493,7 @@ def run_commands(ssh, commands, remote_path=None):
         # No commands to execute
         return True
 
-    cprint('> Command execution', 'cyan')
+    cprint('> ' + m.CMD_EXEC, 'cyan')
 
     popd = 'popd > /dev/null 2>&1'
 
@@ -499,12 +502,12 @@ def run_commands(ssh, commands, remote_path=None):
         to_run = cmd[1]
 
         if command_type == 'local':
-            cprint('Running local command: %s' % to_run, 'magenta')
+            cprint(m.CMD_LOCAL % to_run, 'magenta')
 
             subprocess.Popen(to_run, shell=True).wait()
 
         elif command_type == 'remote':
-            cprint('Running remote command: %s' % to_run, 'magenta')
+            cprint(m.CMD_REMOTE % to_run, 'magenta')
 
             if remote_path:
                 # Only for post-deployment commands
@@ -520,9 +523,9 @@ def run_commands(ssh, commands, remote_path=None):
 
         else:
             # Unknown type, skip
-            cprint('Skipping unknown command type "%s"\n' % command_type, 'red')
+            cprint((m.CMD_SKIP % command_type) + '\n', 'red')
 
-    cprint('Done!\n', 'green')
+    cprint(m.DONE + '\n', 'green')
     return True
 
 def symlink(ssh, deployer, rev_path, timestamp):
@@ -537,7 +540,7 @@ def symlink(ssh, deployer, rev_path, timestamp):
     Returns:
         Boolean indicating result.
     """
-    cprint('> Linking directory...', 'cyan')
+    cprint('> ' + m.LINK_DIR, 'cyan')
 
     link_path = os.path.join(deployer.deploy_path, 'current')
     current_rev = os.path.join(rev_path, timestamp)
@@ -547,7 +550,7 @@ def symlink(ssh, deployer, rev_path, timestamp):
     stdin, stdout, stderr = ssh.exec_command(ln)
     # status = stdout.channel.recv_exit_status()
 
-    cprint('Done!\n', 'green')
+    cprint(m.DONE + '\n', 'green')
     return True
 
 def symlink_shared(ssh, deployer):
@@ -564,13 +567,13 @@ def symlink_shared(ssh, deployer):
         # Nothing to link
         return True
 
-    cprint('> Linking shared files...', 'cyan')
+    cprint('> ' + m.LINK_SHARED, 'cyan')
 
     current_path = os.path.join(deployer.deploy_path, 'current')
     shared_path = os.path.join(deployer.deploy_path, 'shared')
 
     for shared in deployer.shared_paths:
-        cprint('Linking: %s' % shared, 'magenta')
+        cprint(m.LINKING % shared, 'magenta')
 
         src_path = os.path.join(shared_path, shared)
         dest_path = os.path.join(current_path, shared)
@@ -580,7 +583,7 @@ def symlink_shared(ssh, deployer):
         stdin, stdout, stderr = ssh.exec_command(ln)
         # status = stdout.channel.recv_exit_status()
 
-    cprint('Done!\n', 'green')
+    cprint(m.DONE + '\n', 'green')
     return True
 
 def write_yaml(path, content):
@@ -598,7 +601,7 @@ def write_yaml(path, content):
             yaml.dump(content, fumi_yml, default_flow_style=False)
 
         except yaml.YAMLError as e:
-            cprint('Error writing yaml to deployment file: %s' % e, 'red')
+            cprint(m.YML_WRITE_ERR % e, 'red')
             return False
 
     return True

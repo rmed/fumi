@@ -31,6 +31,7 @@ This is simply used to check connection configuration and create the remote
 directory tree structure.
 """
 
+from fumi import messages as m
 from fumi import util
 
 
@@ -44,30 +45,32 @@ def prepare(deployer):
         Boolean indicating result of the preparation.
     """
     # SSH connection
-    util.cprint('> Connecting to %s as %s...' % (
-        deployer.host, deployer.user), 'cyan')
+    util.cprint(
+        '> ' + m.DEP_CONNECTING % (deployer.host, deployer.user),
+        'cyan'
+    )
 
     status, ssh = util.connect(deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Connected!\n', 'green')
+    util.cprint(m.DEP_CONNECTED + '\n', 'green')
 
 
     # Directory structures
-    util.cprint('> Creating remote directory tree...', 'cyan')
+    util.cprint('> ' + m.DEP_CREATEDIR, 'cyan')
 
     status = util.create_dirs(ssh, deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Correct!\n', 'green')
+    util.cprint(m.CORRECT + '\n', 'green')
 
 
-    util.cprint('Preparation complete!', 'green')
-    util.cprint('Make sure to upload shared files before deploying', 'white')
+    util.cprint(m.DEP_PREPARE_COMPLETE, 'green')
+    util.cprint(m.DEP_PREPARE_NOTICE, 'white')
 
     # Close SSH connection
     ssh.close()

@@ -35,6 +35,7 @@ import os
 import scp
 import tarfile
 
+from fumi import messages as m
 from fumi import util
 
 
@@ -48,15 +49,17 @@ def deploy(deployer):
         Boolean indicating result of the deployment.
     """
     # SSH connection
-    util.cprint('> Connecting to %s as %s...' % (
-        deployer.host, deployer.user), 'cyan')
+    util.cprint(
+        '> ' + m.DEP_CONNECTING % (deployer.host, deployer.user),
+        'cyan'
+    )
 
     status, ssh = util.connect(deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Connected!\n', 'green')
+    util.cprint(m.DEP_CONNECTED + '\n', 'green')
 
 
     # Predeployment commands
@@ -67,19 +70,19 @@ def deploy(deployer):
 
 
     # Directory structures
-    util.cprint('> Checking remote directories...', 'cyan')
+    util.cprint('> ' + m.DEP_CHECK_REMOTE, 'cyan')
 
     status = util.check_dirs(ssh, deployer)
     if not status:
         ssh.close()
         return False
 
-    util.cprint('Correct!\n', 'green')
+    util.cprint(m.CORRECT + '\n', 'green')
 
 
     # Compress source to temporary directory
     timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-    util.cprint('Preparing revision %s' % timestamp, 'white')
+    util.cprint(m.DEP_PREPARE_REV % timestamp, 'white')
 
     compressed_file = timestamp + '.tar.gz'
     tmp_local = os.path.join('/tmp', compressed_file)
@@ -91,7 +94,7 @@ def deploy(deployer):
     else:
         cnt_list = os.listdir(deployer.source_path)
 
-    util.cprint('> Compressing source to %s' % tmp_local, 'cyan')
+    util.cprint('> ' + m.DEP_LOCAL_COMPRESS % tmp_local, 'cyan')
 
     with tarfile.open(tmp_local, "w:gz") as tar:
         for item in cnt_list:
@@ -103,13 +106,13 @@ def deploy(deployer):
 
             else:
                 # Ignore
-                util.cprint('Path "%s" does not exist, ignoring' % path, 'white')
+                util.cprint(m.DEP_LOCAL_PATHNOEXIST % path, 'white')
 
-    util.cprint('Done!\n', 'green')
+    util.cprint(m.DONE + '\n', 'green')
 
 
     # Upload compressed source
-    util.cprint('> Uploading %s...' % compressed_file, 'cyan')
+    util.cprint('> ' + m.DEP_LOCAL_UPLOAD % compressed_file, 'cyan')
 
     try:
         uload = scp.SCPClient(
@@ -118,7 +121,7 @@ def deploy(deployer):
 
     except:
         # Failed to initiate SCP
-        util.cprint('Failed to initiate SCP, check configuration', 'red')
+        util.cprint(m.DEP_LOCAL_SCPFAIL, 'red')
         status = util.rollback(ssh, deployer, timestamp, 1)
         ssh.close()
         return False
@@ -130,16 +133,16 @@ def deploy(deployer):
         uload.put(tmp_local, uload_path)
 
     except scp.SCPException as e:
-        util.cprint('Error uploading to server: %s\n' % e, 'red')
+        util.cprint(m.DEP_LOCAL_UPLOADERR + '\n' % e, 'red')
         status = util.rollback(ssh, deployer, timestamp, 3)
         ssh.close()
         return False
 
-    util.cprint('Done!\n', 'green')
+    util.cprint(m.DONE + '\n', 'green')
 
 
     # Uncompress source to deploy_path/rev
-    util.cprint('> Uncompressing remote file...', 'cyan')
+    util.cprint('> ' + m.DEP_LOCAL_UNCOMPRESS, 'cyan')
 
     rev_path = os.path.join(deployer.deploy_path, 'rev')
     untar = 'tar -C %s -zxvf %s' % (rev_path, uload_path)
@@ -148,14 +151,14 @@ def deploy(deployer):
     status = stdout.channel.recv_exit_status()
 
     if status == 127:
-        util.cprint('Error: tar command not found in remote host\n', 'red')
+        util.cprint(m.DEP_LOCAL_ERR127 + '\n', 'red')
 
         status = util.rollback(ssh, deployer, timestamp, 1)
         ssh.close()
         return False
 
     elif status == 1:
-        util.cprint('Error: some files differ\n', 'red')
+        util.cprint(m.DEP_LOCAL_ERR1 + '\n', 'red')
         util.cprint(*stderr.readlines())
 
         status = util.rollback(ssh, deployer, timestamp, 2)
@@ -163,14 +166,14 @@ def deploy(deployer):
         return False
 
     elif status == 2:
-        util.cprint('Fatal error when extracting remote file', 'red')
+        util.cprint(m.DEP_LOCAL_ERR2 + '\n', 'red')
         util.cprint(*stderr.readlines())
 
         status = util.rollback(ssh, deployer, timestamp, 2)
         ssh.close()
         return False
 
-    util.cprint('Done!\n', 'green')
+    util.cprint(m.DONE + '\n', 'green')
 
 
     # Link directory
@@ -203,15 +206,15 @@ def deploy(deployer):
 
 
     # Cleanup temporary files
-    util.cprint('> Cleaning temporary files...', 'cyan')
+    util.cprint('> ' + m.DEP_LOCAL_CLEAN, 'cyan')
 
     util.remove_local(tmp_local)
     util.remove_remote(ssh, uload_path)
 
-    util.cprint('Done!\n', 'green')
+    util.cprint(m.DONE + '\n', 'green')
 
 
-    util.cprint('Deployment complete!', 'green')
+    util.cprint(m.DEP_COMPLETE, 'green')
 
     # Close SSH connection
     ssh.close()

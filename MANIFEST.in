@@ -2,4 +2,6 @@ include LICENSE
 include requirements.txt
 include docs/Makefile
 include docs/make.bat
+include fumi/locale/fumi.pot
+recursive-include fumi/locale *.po
 recursive-include docs/source *

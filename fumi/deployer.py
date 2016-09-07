@@ -27,9 +27,11 @@
 
 """Code for the ``Deployer`` class, which acts as proxy for configurations."""
 
+import gettext
 import types
 
 from fumi import deployments
+from fumi import messages as m
 from fumi.util import cprint
 
 
@@ -116,21 +118,21 @@ def build_deployer(config):
     except KeyError as e:
         # Missing required parameter
         key = e.args[0]
-        cprint('Missing required parameter: %s\n' % key, 'red')
+        cprint(m.DEP_MISSING_PARAM + '\n' % key, 'red')
         return False, None
 
     # Determine deployment function to use
     if deployer.source_type == 'local':
-        cprint('Performing a "local" deployment')
+        cprint(m.DEP_LOCAL)
         deployer.deploy = types.MethodType(deployments.deploy_local, deployer)
 
     elif deployer.source_type == 'git':
-        cprint('Performing a "git" deployment')
+        cprint(m.DEP_GIT)
         deployer.deploy = types.MethodType(deployments.deploy_git, deployer)
 
     else:
         # Unknown deployment type
-        cprint('Unknown deployment type: %s' % deployer.source_type, 'red')
+        cprint(m.DEP_UNKNOWN % deployer.source_type, 'red')
         return False, None
 
     # Additional method for preparing/testing the deployment
