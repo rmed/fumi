@@ -83,7 +83,7 @@ setup(
 
     install_requires=[
         'blessings==1.6',
-        'paramiko==2.0.2',
+        'paramiko==2.0.9',
         'pyyaml==3.12',
         'scp==0.10.2',
         'six==1.10.0'
